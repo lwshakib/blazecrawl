@@ -237,7 +237,7 @@ export default function Page() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#FF6D00]/30 selection:text-white relative overflow-x-hidden font-rajdhani">
+    <div className="min-h-screen bg-black text-white selection:bg-[#FF6D00]/30 selection:text-white relative overflow-x-hidden font-jakarta">
       <style jsx global>{`
         body {
           background-color: #000000;
@@ -364,10 +364,10 @@ export default function Page() {
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Logo className="w-8 h-8 text-[#FFAB00]" />
-            <span className="uppercase text-xl font-medium text-white tracking-widest font-jakarta">BlazeCrawl</span>
+            <span className="text-xl font-semibold text-white font-jakarta">BlazeCrawl</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-xs font-mono tracking-widest uppercase text-orange-50">
+          <div className="hidden md:flex items-center gap-8 text-sm font-mono text-orange-50">
             <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Features</a>
             <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Developer</a>
             <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Platform</a>
@@ -377,13 +377,11 @@ export default function Page() {
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="#" className="text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] hidden sm:block text-orange-50 font-geist">Auth_Req</a>
-            <a href="#" className="group relative flex items-center justify-center px-6 py-2.5 cursor-pointer overflow-hidden bg-[#1A2A3A]/40 border border-white/5 backdrop-blur-sm shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#FFAB00] transition-all group-hover:w-[6px] group-hover:bg-white shadow-[0_0_10px_rgba(255,171,0,0.5)]" />
-              <div className="absolute right-0 top-0 bottom-0 w-[3px] bg-[#FFAB00] transition-all group-hover:w-[6px] group-hover:bg-white shadow-[0_0_10px_rgba(255,171,0,0.5)]" />
-              <div className="absolute inset-0 bg-gradient-to-r from-[#FFAB00]/0 via-[#FFAB00]/10 to-[#FFAB00]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <span className="relative z-10 text-white font-mono text-xs tracking-widest uppercase flex items-center gap-2 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all font-geist">
-                Initialize <Icon icon="solar:stars-linear" className="w-4 h-4 opacity-70" />
+            <a href="/login" className="text-sm font-medium hover:text-[#FFAB00] hidden sm:block text-orange-50 font-jakarta">Login</a>
+            <a href="/login" className="group relative flex items-center justify-center px-6 py-2.5 cursor-pointer overflow-hidden bg-[#1A2A3A]/40 border border-white/5 backdrop-blur-sm">
+              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#FFAB00]" />
+              <span className="relative z-10 text-white text-sm font-medium flex items-center gap-2 transition-all font-jakarta">
+                Get Started <Icon icon="solar:stars-linear" className="w-4 h-4 opacity-70" />
               </span>
             </a>
           </div>
@@ -408,26 +406,23 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="text-[#FFAB00]/80 font-mono text-xs tracking-widest uppercase mb-4 font-geist" id="pre-title" style={{ letterSpacing: "0.1em" }}>Crawler Sequence Activated</div>
+            <div className="text-[#FFAB00]/80 font-medium text-sm mb-4 font-jakarta" id="pre-title">Fast Web Scraping</div>
 
-            <h1 className="text-5xl sm:text-6xl lg:text-[5.5rem] uppercase tracking-tight leading-[1.1] mb-6 text-metallic font-jakarta font-medium" id="title-text">
+            <h1 className="text-5xl sm:text-6xl lg:text-[5.5rem] leading-[1.1] mb-6 text-metallic font-jakarta font-medium" id="title-text">
               The Ultimate<br />Web Crawler
             </h1>
 
-            <p className="leading-relaxed uppercase text-sm tracking-wide font-mono max-w-xl mb-10 text-orange-50 font-geist">
+            <p className="leading-relaxed text-base font-mono max-w-xl mb-10 text-orange-50 font-geist">
               BlazeCrawl is the paramount high-performance scraping terminal, utilized to intercept, transmit, and decode web data into actionable intelligence.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <a href="#" className="group relative flex items-center justify-center px-8 py-3.5 w-full sm:w-auto cursor-pointer overflow-hidden bg-[#1A2A3A]/40 border border-white/5 backdrop-blur-sm shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
-                <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#FFAB00] transition-all group-hover:w-[8px] group-hover:bg-white shadow-[0_0_10px_rgba(255,171,0,0.5)]" />
-                <div className="absolute right-0 top-0 bottom-0 w-[4px] bg-[#FFAB00] transition-all group-hover:w-[8px] group-hover:bg-white shadow-[0_0_10px_rgba(255,171,0,0.5)]" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FFAB00]/0 via-[#FFAB00]/10 to-[#FFAB00]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <span className="relative z-10 text-white font-mono text-xs tracking-widest uppercase flex items-center gap-2 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] transition-all font-geist">
+              <a href="/login" className="group relative flex items-center justify-center px-8 py-3.5 w-full sm:w-auto cursor-pointer overflow-hidden bg-[#FFAB00] hover:bg-white transition-colors">
+                <span className="relative z-10 text-black font-semibold text-sm flex items-center gap-2 transition-all font-jakarta">
                   Start Crawling <Icon icon="solar:alt-arrow-right-linear" className="w-4 h-4" />
                 </span>
               </a>
-              <a href="#" className="w-full sm:w-auto bg-[#000000]/50 backdrop-blur-sm border border-[#D4A373]/40 px-8 py-3.5 text-xs font-mono tracking-widest uppercase flex justify-center items-center hover:text-[#FFAB00] hover:border-[#FFAB00]/40 transition-colors text-orange-50 font-geist">Network Status</a>
+              <a href="#" className="w-full sm:w-auto bg-[#000000]/50 backdrop-blur-sm border border-[#FFAB00]/20 px-8 py-3.5 text-sm font-medium flex justify-center items-center hover:text-[#FFAB00] hover:border-[#FFAB00]/40 transition-colors text-orange-50 font-jakarta">Try Free</a>
             </div>
           </div>
 
@@ -440,7 +435,7 @@ export default function Page() {
             </div>
             <div className="absolute top-[20%] right-[30%] border border-[#FFAB00]/30 bg-[#0F1A24] p-3 shadow-[0_0_15px_rgba(255,171,0,0.1)]">
               <div className="w-4 h-4 bg-[#E65100]/80 rounded-sm shadow-[0_0_10px_#E65100]" />
-              <div className="text-[10px] font-mono text-[#FFAB00] mt-2 uppercase font-geist">Node_Alpha</div>
+              <div className="text-[10px] font-mono text-[#FFAB00] mt-2 font-geist">Node Alpha</div>
             </div>
             <div className="absolute bottom-[30%] right-[10%] border border-[#FFAB00]/30 bg-[#0F1A24] p-3 shadow-[0_0_15px_rgba(255,171,0,0.1)]">
               <Icon icon="solar:layers-linear" className="w-6 h-6 text-[#FFAB00]" />
@@ -454,8 +449,8 @@ export default function Page() {
                 <div className="w-full h-[2px] bg-gradient-to-r from-[#E65100] via-[#FFAB00] to-[#FFAB00] mx-2" />
               </div>
               <div>
-                <p className="text-xs text-[#FFAB00] font-mono uppercase tracking-widest font-geist">Blaze Data Net</p>
-                <p className="text-xs font-mono uppercase mt-1 text-orange-50 font-geist">Status: Syncing</p>
+                <p className="text-sm text-[#FFAB00] font-semibold font-jakarta">Blaze Crawler</p>
+                <p className="text-xs mt-1 text-orange-50 font-jakarta">Status: Syncing</p>
               </div>
             </div>
           </div>
@@ -465,23 +460,23 @@ export default function Page() {
         <section className="bg-[#030303] mt-32 relative">
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100%] h-[1px] bg-gradient-to-r from-transparent via-[#FFAB00]/50 to-transparent pointer-events-none" />
           <div className="max-w-7xl mx-auto px-6 pt-24 text-center relative z-10">
-            <div className="reveal inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-xs font-mono text-[#FFAB00] uppercase tracking-widest mb-8 font-geist">Global_Stats</div>
-            <h2 className="reveal text-2xl sm:text-3xl lg:text-4xl tracking-widest text-white max-w-3xl mx-auto leading-tight mb-20 uppercase font-jakarta font-medium">
+            <div className="reveal inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-sm font-mono text-[#FFAB00] mb-8 font-geist">Global Stats</div>
+            <h2 className="reveal text-2xl sm:text-3xl lg:text-4xl text-white max-w-3xl mx-auto leading-tight mb-20 font-jakarta font-medium">
               High-velocity extraction engine for the modern data architecture
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center border-t border-b border-[#FFAB00]/10 py-12">
               <div className="reveal text-center md:text-left">
-                <p className="text-4xl tracking-tight mb-2 text-[#FFAB00] font-jakarta font-medium">12.5+ MM</p>
-                <p className="text-xs font-mono uppercase tracking-widest text-orange-50 font-geist">Pages Scraped</p>
+                <p className="text-4xl mb-2 text-[#FFAB00] font-jakarta font-medium">12.5+ MM</p>
+                <p className="text-sm font-mono text-orange-50 font-geist">Pages Scraped</p>
               </div>
-              <div className="reveal flex flex-wrap justify-center gap-8 items-center opacity-70 text-white font-mono uppercase tracking-widest text-sm">
-                <span className="font-geist">Fast_</span>
+              <div className="reveal flex flex-wrap justify-center gap-8 items-center opacity-70 text-white font-mono text-base">
+                <span className="font-geist">Fast</span>
                 <span className="flex items-center gap-1 font-geist"><Icon icon="solar:infinity-linear" className="w-5 h-5" /> Scalable</span>
                 <span className="font-geist">Secure</span>
               </div>
               <div className="reveal text-center md:text-right">
-                <p className="text-4xl tracking-tight mb-2 text-[#FFAB00] font-jakarta font-medium">500+ TB</p>
-                <p className="text-xs font-mono uppercase tracking-widest text-orange-50 font-geist">Data Extracted</p>
+                <p className="text-4xl mb-2 text-[#FFAB00] font-jakarta font-medium">500+ TB</p>
+                <p className="text-sm font-mono text-orange-50 font-geist">Data Extracted</p>
               </div>
             </div>
           </div>
@@ -490,10 +485,10 @@ export default function Page() {
         {/* Features Bento Box */}
         <section className="max-w-7xl mx-auto px-6 py-32">
           <div className="reveal mb-12 border-l-[6px] border-[#FFAB00] pl-6 shadow-[inset_2px_0_10px_rgba(255,171,0,0.1)]">
-            <div className="text-xs font-mono text-[#FFAB00] uppercase tracking-widest mb-4 font-geist">Extraction_Protocol</div>
+            <div className="text-sm font-medium text-[#FFAB00] mb-4 font-jakarta">Features</div>
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <h2 className="text-3xl sm:text-4xl tracking-widest max-w-md leading-tight uppercase font-jakarta font-medium">Multi-Format Output</h2>
-              <p className="text-xs font-mono uppercase tracking-widest max-w-sm md:text-right text-orange-50 font-geist">From URL to Markdown, Summary, Links, HTML, Screenshot, and JSON.</p>
+              <h2 className="text-3xl sm:text-4xl max-w-md leading-tight font-jakarta font-medium">Multi-Format Output</h2>
+              <p className="text-sm font-mono max-w-sm md:text-right text-orange-50 font-geist">From URL to Markdown, Summary, Links, HTML, Screenshot, and JSON.</p>
             </div>
           </div>
 
@@ -557,8 +552,8 @@ export default function Page() {
                   <div className="absolute top-[20%] left-[60%] flex flex-col items-center">
                     <div className="bg-[#FFAB00] w-1.5 h-1.5 rounded-sm shadow-[0_0_5px_#FFAB00] mb-2" />
                     <div className="bg-[#000000] border border-[#FFAB00]/30 p-2 text-center min-w-[120px]">
-                      <p className="text-xs font-mono uppercase text-white mb-1 font-geist">Blaze_Node</p>
-                      <p className="text-xs font-mono text-[#FFAB00] font-geist">ACTIVE_SYNC</p>
+                      <p className="text-xs font-mono uppercase text-white mb-1 font-geist">Blaze Node</p>
+                      <p className="text-xs font-mono text-[#FFAB00] font-geist">Active Sync</p>
                     </div>
                   </div>
                 </div>
@@ -601,8 +596,8 @@ export default function Page() {
           <div className="p-8 md:p-16 flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "inset 0 0 30px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
             <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
             <div className="reveal w-full lg:w-1/2 relative z-10 border-l-[6px] border-[#FFAB00] pl-8">
-              <div className="text-xs font-mono text-[#FFAB00] uppercase tracking-widest mb-6 font-geist">Access_Key</div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl uppercase tracking-widest mb-12 max-w-md leading-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] font-jakarta font-medium">Level 10 Crawler Identification</h2>
+              <div className="text-sm font-mono text-[#FFAB00] mb-6 font-geist">Access Key</div>
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl mb-12 max-w-md leading-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] font-jakarta font-medium">Level 10 Crawler Identification</h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
                 <div>
                   <div className="w-8 h-8 mb-4 border border-[#FFAB00]/40 flex items-center justify-center text-[#FFAB00]"><Icon icon="solar:shield-keyhole-linear" className="w-4 h-4" /></div>
@@ -638,7 +633,7 @@ export default function Page() {
                   <div className="w-1 bg-[#FFAB00]" /><div className="w-2 bg-[#FFAB00]" /><div className="w-0.5 bg-[#FFAB00]" /><div className="w-3 bg-[#FFAB00]" /><div className="w-1 bg-[#FFAB00]" /><div className="w-2 bg-[#FFAB00]" /><div className="w-0.5 bg-[#FFAB00]" /><div className="w-1 bg-[#FFAB00]" /><div className="w-4 bg-[#FFAB00]" /><div className="w-1 bg-[#FFAB00]" /><div className="w-2 bg-[#FFAB00]" /><div className="w-0.5 bg-[#FFAB00]" />
                 </div>
                 <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end relative z-10 mt-auto pt-32">
-                  <span className="text-[#FFAB00] font-mono tracking-widest text-[10px] uppercase font-geist">B. CRAWL</span>
+                  <span className="text-[#FFAB00] font-medium text-xs font-jakarta">BlazeCrawl</span>
                   <div className="w-4 h-4 border border-[#FFAB00] bg-[#5C3A0B]/50" />
                 </div>
               </div>
@@ -649,8 +644,8 @@ export default function Page() {
         {/* FAQ Section */}
         <section className="max-w-4xl mx-auto px-6 py-24">
           <div className="reveal text-center mb-16">
-            <div className="inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-xs font-mono text-[#FFAB00] uppercase tracking-widest mb-6 font-geist">Extraction_Logs</div>
-            <h2 className="text-2xl sm:text-3xl uppercase tracking-widest text-white font-jakarta font-medium">Service Intelligence</h2>
+            <div className="inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-sm font-medium text-[#FFAB00] mb-6 font-jakarta">FAQ</div>
+            <h2 className="text-2xl sm:text-3xl text-white font-jakarta font-medium">Service Intelligence</h2>
             <div className="flex justify-center gap-8 mt-10 border-b border-[#FFAB00]/10">
               <button className="pb-4 text-xs font-mono uppercase tracking-widest text-[#FFAB00] border-b-2 border-[#FFAB00] font-geist">Core</button>
               <button className="pb-4 text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] text-orange-50 font-geist">Network</button>
@@ -679,15 +674,15 @@ export default function Page() {
           <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="reveal flex flex-col items-center text-center mb-20">
-              <div className="inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-xs font-mono text-[#FFAB00] uppercase tracking-widest mb-6 font-geist shadow-[inset_0_0_8px_rgba(255,171,0,0.2)]">Crawler_Network</div>
-              <h2 className="text-3xl md:text-5xl uppercase tracking-tight text-white font-jakarta font-medium mb-6">Synchronized Nodes</h2>
-              <p className="text-xs font-mono uppercase tracking-widest text-orange-50 max-w-2xl font-geist leading-relaxed opacity-80">Global relays maintaining high-performance scraping and real-time synchronization across the architecture.</p>
+              <div className="inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-sm font-medium text-[#FFAB00] mb-6 font-jakarta shadow-[inset_0_0_8px_rgba(255,171,0,0.2)]">Global Network</div>
+              <h2 className="text-3xl md:text-5xl text-white font-jakarta font-medium mb-6">Synchronized Nodes</h2>
+              <p className="text-sm font-mono text-orange-50 max-w-2xl font-geist leading-relaxed opacity-80">Global relays maintaining high-performance scraping and real-time synchronization across the architecture.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[
-                { name: "Node_Tokyo", desc: "Primary Asian-Pacific junction. Handling 42% of cross-grid packet routing and intercept distribution.", icon: "lucide:server", integrity: "99.9%" },
-                { name: "Node_Frankfurt", desc: "Central European logic processor. Executes high-performance scraping and continuous proxy rotation.", icon: "lucide:cpu", integrity: "98.4%" },
-                { name: "Node_NA_East", desc: "High-bandwidth data aggregation. Maintains direct multi-channel uplink to orbital data relays.", icon: "lucide:network", integrity: "99.1%" }
+                { name: "Node Tokyo", desc: "Primary Asian-Pacific junction. Handling 42% of cross-grid packet routing and intercept distribution.", icon: "lucide:server", integrity: "99.9%" },
+                { name: "Node Frankfurt", desc: "Central European logic processor. Executes high-performance scraping and continuous proxy rotation.", icon: "lucide:cpu", integrity: "98.4%" },
+                { name: "Node NA East", desc: "High-bandwidth data aggregation. Maintains direct multi-channel uplink to orbital data relays.", icon: "lucide:network", integrity: "99.1%" }
               ].map((terminal, i) => (
                 <div key={i} className="glow-card reveal p-8 bg-[#0F1A24]/90 backdrop-blur-md border border-[#FFAB00]/20 hover:border-[#FFAB00]/60 transition-all duration-500 group relative overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,171,0,0.05)]">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF6D00]/5 blur-[40px] group-hover:bg-[#FF6D00]/20 transition-colors duration-500" />
@@ -701,14 +696,14 @@ export default function Page() {
                         <Icon icon={terminal.icon} className="w-6 h-6" />
                       </div>
                       <div className="flex items-center gap-2 bg-[#000000] border border-[#FFAB00]/20 px-2 py-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#FFAB00] shadow-[0_0_5px_#FFAB00] animate-[pulse_2s_ease-in-out_infinite]" />
-                        <span className="text-[10px] font-mono text-[#FFAB00] uppercase tracking-widest font-geist">Active</span>
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#FFAB00] animate-[pulse_2s_ease-in-out_infinite]" />
+                        <span className="text-[10px] font-medium text-[#FFAB00] font-jakarta">Active</span>
                       </div>
                     </div>
-                    <h3 className="text-2xl tracking-tight uppercase text-white font-jakarta font-medium mb-3">{terminal.name}</h3>
-                    <p className="text-xs font-mono uppercase text-orange-50 mb-10 font-geist leading-relaxed opacity-80">{terminal.desc}</p>
+                    <h3 className="text-2xl uppercase text-white font-jakarta font-medium mb-3">{terminal.name}</h3>
+                    <p className="text-sm font-mono text-orange-50 mb-10 font-geist leading-relaxed opacity-80">{terminal.desc}</p>
                     <div className="mt-auto space-y-3 border-t border-[#FFAB00]/10 pt-6">
-                      <div className="flex justify-between items-center text-[10px] font-mono uppercase tracking-widest text-orange-50 font-geist">
+                      <div className="flex justify-between items-center text-[11px] font-mono text-orange-50 font-geist">
                         <span>Performance</span>
                         <span className="text-[#FFAB00]">{terminal.integrity}</span>
                       </div>
@@ -723,7 +718,7 @@ export default function Page() {
             <div className="reveal mt-16 flex justify-center relative z-10">
               <div className="inline-flex items-center gap-4 border border-[#FFAB00]/30 bg-[#0F1A24]/60 px-6 py-3 backdrop-blur-sm shadow-[inset_0_0_10px_rgba(255,171,0,0.1)]">
                 <Icon icon="lucide:shield-check" className="w-5 h-5 text-[#FFAB00]" />
-                <span className="text-xs font-mono uppercase tracking-widest text-white font-geist">All nodes reporting nominal performance</span>
+                <span className="text-sm font-mono text-white font-geist">All nodes reporting nominal performance</span>
                 <div className="flex gap-1 ml-4">
                   <div className="w-1 h-3 bg-[#FFAB00] opacity-100" /><div className="w-1 h-3 bg-[#FFAB00] opacity-80" /><div className="w-1 h-3 bg-[#FFAB00] opacity-60" /><div className="w-1 h-3 bg-[#FFAB00] opacity-40" />
                 </div>
@@ -735,7 +730,7 @@ export default function Page() {
         {/* CTA Section */}
         <section className="py-32 relative text-center overflow-hidden border-t border-[#FFAB00]/10">
           <div className="max-w-3xl mx-auto px-6 relative z-10">
-            <h2 className="reveal text-3xl md:text-5xl uppercase tracking-widest mb-16 text-white font-jakarta font-medium">Access Mainframe</h2>
+            <h2 className="reveal text-3xl md:text-5xl mb-16 text-white font-jakarta font-medium">Access Mainframe</h2>
             <div className="relative w-full h-[200px] mb-12 flex justify-center items-center pointer-events-none">
               <div className="absolute w-[80%] h-px bg-[#FFAB00]/20" />
               <div className="absolute left-[15%] w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center">
@@ -750,8 +745,8 @@ export default function Page() {
             </div>
             <div className="reveal w-full max-w-md mx-auto relative mb-6">
               <div className="flex items-center bg-[#0F1A24] border border-[#FFAB00]/40 p-1 pl-4 focus-within:border-[#FFAB00] transition-colors shadow-[inset_0_0_10px_rgba(0,0,0,0.8)]">
-                <input type="text" placeholder="ENTER CRAWL_CODE..." className="bg-transparent border-none outline-none flex-1 text-xs font-mono text-[#FFAB00] placeholder-[#D4A373] uppercase tracking-widest" />
-                <button className="bg-[#000000] border border-[#FFAB00] text-[#FFAB00] px-6 py-3 text-[10px] font-mono tracking-widest uppercase hover:bg-[#5C3A0B]/50 transition-colors font-geist">Execute</button>
+                <input type="text" placeholder="Enter crawl code..." className="bg-transparent border-none outline-none flex-1 text-sm text-[#FFAB00] placeholder-[#D4A373] font-jakarta" />
+                <button className="bg-[#000000] border border-[#FFAB00] text-[#FFAB00] px-6 py-3 text-xs font-mono tracking-widest uppercase hover:bg-[#5C3A0B]/50 transition-colors font-geist">Execute</button>
               </div>
             </div>
           </div>
@@ -763,33 +758,33 @@ export default function Page() {
           <div className="max-w-7xl mx-auto px-6 relative z-10">
             <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
               <div className="md:col-span-2">
-                <h3 className="text-sm font-mono uppercase font-semibold tracking-widest text-white mb-4 font-geist">Prime Crawler Protocol</h3>
-                <p className="text-xs font-mono uppercase tracking-widest max-w-sm mb-8 leading-relaxed text-orange-50 font-geist">Strategic high-performance scraping architecture.</p>
+                <h3 className="text-sm font-mono font-semibold text-white mb-4 font-geist">Prime Crawler Protocol</h3>
+                <p className="text-sm font-mono max-w-sm mb-8 leading-relaxed text-orange-50 font-geist">Strategic high-performance scraping architecture.</p>
                 <div className="flex gap-4">
                   <a href="#" className="w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center hover:border-[#FFAB00] transition-colors hover:text-[#FFAB00] text-orange-50"><Icon icon="solar:hashtag-linear" className="w-4 h-4" /></a>
                   <a href="#" className="w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center hover:border-[#FFAB00] transition-colors hover:text-[#FFAB00] text-orange-50"><Icon icon="solar:camera-linear" className="w-4 h-4" /></a>
                 </div>
               </div>
               <div>
-                <ul className="space-y-4 font-mono text-xs uppercase tracking-widest">
+                <ul className="space-y-4 font-mono text-sm">
                   <li><a href="#" className="hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">Features</a></li>
                   <li><a href="#" className="text-[#FFAB00] font-medium border-l-[3px] border-[#FFAB00] pl-2 font-geist">Dev_Core</a></li>
                   <li><a href="#" className="hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">Platform</a></li>
                 </ul>
               </div>
               <div>
-                <ul className="space-y-4 font-mono text-xs uppercase tracking-widest">
+                <ul className="space-y-4 font-mono text-sm">
                   <li><a href="#" className="text-white font-medium hover:text-[#FFAB00] font-geist">Security</a></li>
                   <li><a href="#" className="text-white font-medium hover:text-[#FFAB00] font-geist">Support</a></li>
                   <li><a href="#" className="text-white font-medium hover:text-[#FFAB00] font-geist">Comms</a></li>
                 </ul>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#FFAB00]/10 text-[10px] font-mono uppercase tracking-widest text-orange-50">
-              <p className="font-geist">SYS.DATE: 2026 // BLAZE_CRAWL</p>
+            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#FFAB00]/10 text-sm text-orange-50 font-jakarta">
+              <p>System Date: 2026 // BlazeCrawl</p>
               <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Privacy_Log</a>
-                <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Terms_Def</a>
+                <a href="#" className="hover:text-[#FFAB00] transition-colors">Privacy Policy</a>
+                <a href="#" className="hover:text-[#FFAB00] transition-colors">Terms of Service</a>
               </div>
             </div>
           </div>

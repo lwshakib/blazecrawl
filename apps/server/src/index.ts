@@ -1,12 +1,16 @@
 import { app } from "./app.js"
 import { PORT } from "./envs.js"
 import logger from "./logger/winston.logger.js"
+import { initDb } from "./db/pg.js"
 
 /**
  * Starts the Express server.
  */
 const startServer = async () => {
   try {
+    // Initialize Database
+    await initDb()
+
     const server = app.listen(PORT, () => {
       logger.info(`⚙️  Server is running at http://localhost:${PORT}`)
     })
@@ -22,8 +26,9 @@ const startServer = async () => {
 
     process.on("SIGTERM", () => shutdown("SIGTERM"))
     process.on("SIGINT", () => shutdown("SIGINT"))
-  } catch (error) {
-    logger.error("Failed to start the server:", error)
+  } catch (error: any) {
+    logger.error(`Failed to start the server: ${error.message || error}`)
+    if (error.stack) logger.error(error.stack)
     process.exit(1)
   }
 }
