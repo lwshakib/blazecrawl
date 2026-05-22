@@ -7,7 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node dist/index.js",
     "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "bucket:setup": "tsx src/scripts/bucket-setup.ts",
+    "bucket:teardown": "tsx src/scripts/bucket-teardown.ts"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +29,7 @@
     "typescript": "^6.0.3"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1052.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -37,6 +40,7 @@
     "morgan": "^1.10.1",
     "nodemailer": "^8.0.7",
     "pg": "^8.20.0",
+    "playwright": "^1.60.0",
     "winston": "^3.19.0"
   }
 }
