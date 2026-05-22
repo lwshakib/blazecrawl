@@ -6,7 +6,7 @@ import { getSession } from "./lib/auth"
  * Navigation proxy logic representing routing boundaries between
  * public pages, authentication interfaces, and private dashboards.
  */
-export async function proxyMiddleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // Check if we are authenticated
@@ -40,4 +40,4 @@ export async function proxyMiddleware(request: NextRequest) {
   return NextResponse.next()
 }
 
-export default proxyMiddleware
+
