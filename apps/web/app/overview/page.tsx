@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Logo } from "@/components/Logo"
 import { Icon } from "@iconify/react"
 import { useTheme } from "next-themes"
 import { Badge } from "@workspace/ui/components/badge"
@@ -15,21 +14,11 @@ import {
   CardDescription,
 } from "@workspace/ui/components/card"
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
   SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarProvider,
-  SidebarRail,
   SidebarTrigger,
 } from "@workspace/ui/components/sidebar"
+import { AppSidebar } from "@/components/app-sidebar"
 
 export default function OverviewPage() {
   const { resolvedTheme, setTheme } = useTheme()
@@ -62,86 +51,15 @@ export default function OverviewPage() {
 
   if (!mounted) return null
 
-  const navigationItems = [
-    { name: "Overview", icon: "solar:widget-linear" },
-    { name: "Crawlers", icon: "solar:layers-linear" },
-    { name: "Datasets", icon: "solar:database-linear" },
-    { name: "Settings", icon: "solar:settings-linear" },
-  ]
-
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background text-foreground font-sans">
         {/* Shadcn SideBar Component */}
-        <Sidebar collapsible="icon" className="border-r border-border/60 bg-card">
-          <SidebarHeader className="h-16 flex items-center justify-between px-4 border-b border-border/40">
-            <div className="flex items-center gap-2.5 overflow-hidden group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-full">
-              <Logo className="w-5 h-5 text-foreground shrink-0" />
-              <span className="font-semibold text-sm tracking-tight group-data-[collapsible=icon]:hidden transition-opacity duration-200">
-                BlazeCrawl
-              </span>
-            </div>
-          </SidebarHeader>
-
-          <SidebarContent className="py-4">
-            <SidebarGroup>
-              <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
-                Workspace
-              </SidebarGroupLabel>
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  {navigationItems.map((item) => (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton
-                        isActive={activeItem === item.name}
-                        onClick={() => setActiveItem(item.name)}
-                        tooltip={item.name}
-                        className="transition-colors"
-                      >
-                        <Icon icon={item.icon} className="w-4 h-4 shrink-0" />
-                        <span className="group-data-[collapsible=icon]:hidden">
-                          {item.name}
-                        </span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-          </SidebarContent>
-
-          <SidebarFooter className="border-t border-border/40 p-4">
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <div className="flex items-center gap-3 py-2 px-2 rounded-md overflow-hidden group-data-[collapsible=icon]:justify-center">
-                  <div className="w-6 h-6 border border-border bg-muted/30 rounded-full flex items-center justify-center shrink-0">
-                    <Icon icon="solar:user-linear" className="w-3.5 h-3.5 text-muted-foreground" />
-                  </div>
-                  <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
-                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                      User profile
-                    </span>
-                    <span className="text-xs font-medium text-foreground truncate max-w-[120px]">
-                      {userEmail}
-                    </span>
-                  </div>
-                </div>
-              </SidebarMenuItem>
-
-              <SidebarMenuItem className="mt-2">
-                <SidebarMenuButton
-                  onClick={handleLogout}
-                  tooltip="Log Out"
-                  className="w-full text-muted-foreground hover:text-foreground hover:bg-destructive/10 transition-colors"
-                >
-                  <Icon icon="solar:logout-linear" className="w-4 h-4 shrink-0" />
-                  <span className="group-data-[collapsible=icon]:hidden">Log Out</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-          <SidebarRail />
-        </Sidebar>
+        <AppSidebar
+          activeItem={activeItem}
+          setActiveItem={setActiveItem}
+          handleLogout={handleLogout}
+        />
 
         {/* main container */}
         <SidebarInset className="flex-1 flex flex-col min-h-screen bg-background">
