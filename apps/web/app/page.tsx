@@ -73,20 +73,6 @@ export default function Page() {
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background relative overflow-x-hidden font-sans">
       <style jsx global>{`
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
-          border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-          background: color-mix(in oklch, var(--muted-foreground) 45%, transparent);
-        }
         .reveal {
           opacity: 0;
           transform: translateY(15px);
