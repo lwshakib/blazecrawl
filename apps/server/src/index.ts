@@ -2,6 +2,7 @@ import { app } from "./app.js"
 import { PORT } from "./envs.js"
 import logger from "./logger/winston.logger.js"
 import { initDb } from "./db/pg.js"
+import { setupBucket } from "./scripts/bucket-setup.js"
 
 /**
  * Starts the Express server.
@@ -10,6 +11,9 @@ const startServer = async () => {
   try {
     // Initialize Database
     await initDb()
+
+    // Setup Cloudflare R2 / S3 Bucket configuration automatically
+    await setupBucket()
 
     const server = app.listen(PORT, () => {
       logger.info(`⚙️  Server is running at http://localhost:${PORT}`)
