@@ -28,6 +28,15 @@ export const initDb = async () => {
         expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS scrape_runs (
+        id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+        user_email TEXT NOT NULL,
+        url TEXT NOT NULL,
+        options JSONB NOT NULL,
+        result JSONB NOT NULL,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+      );
     `)
     console.log("Database initialized successfully")
   } catch (err) {
