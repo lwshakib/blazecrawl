@@ -24,7 +24,6 @@ export default function OverviewPage() {
   const { resolvedTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
   const [userEmail, setUserEmail] = useState<string>("admin@blazecrawl.com")
-  const [activeItem, setActiveItem] = useState("Overview")
 
   useEffect(() => {
     setMounted(true)
@@ -39,7 +38,6 @@ export default function OverviewPage() {
         }
       })
       .catch(() => {
-        // Fallback user email in dev/mock environments
         setUserEmail("admin@blazecrawl.com")
       })
   }, [])
@@ -55,29 +53,20 @@ export default function OverviewPage() {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background text-foreground font-sans">
         {/* Shadcn SideBar Component */}
-        <AppSidebar
-          activeItem={activeItem}
-          setActiveItem={setActiveItem}
-          handleLogout={handleLogout}
-        />
+        <AppSidebar handleLogout={handleLogout} />
 
         {/* main container */}
         <SidebarInset className="flex-1 flex flex-col min-h-screen bg-background">
           <header className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/40 backdrop-blur-md sticky top-0 z-10">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-muted/60" />
-              <Separator orientation="vertical" className="h-4" />
+              <Separator orientation="vertical" className="h-4 bg-border/40" />
               <span className="text-sm font-semibold tracking-tight text-foreground">
                 Dashboard Overview
               </span>
             </div>
 
             <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="flex items-center gap-1.5 bg-green-500/10 hover:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 text-[10px] px-2.5 py-0.5 rounded-full font-mono uppercase tracking-wider">
-                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                Network Healthy
-              </Badge>
-
               <Button
                 variant="ghost"
                 size="icon"
@@ -95,7 +84,7 @@ export default function OverviewPage() {
             </div>
           </header>
 
-          <main className="p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto flex-1">
+          <main className="p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
             {/* stats card row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
