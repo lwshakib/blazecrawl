@@ -7,10 +7,14 @@ export const transporter = nodemailer.createTransport({
   secure: false, // true for 465, false for other ports
 })
 
-export const sendMagicLink = async (email: string, token: string, host: string) => {
+export const sendMagicLink = async (
+  email: string,
+  token: string,
+  host: string
+) => {
   const protocol = process.env.NODE_ENV === "production" ? "https" : "http"
   const magicLink = `${protocol}://${host}/api/auth/verify?token=${token}`
-  
+
   await transporter.sendMail({
     from: '"BlazeCrawl" <auth@blazecrawl.com>',
     to: email,

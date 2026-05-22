@@ -1,0 +1,30 @@
+name: Feature Request
+description: Propose a new feature, selector enhancement, or tool improvement.
+title: "[FEAT] "
+labels: ["enhancement"]
+assignees: []
+body:
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Is your feature request related to a problem?
+      description: Provide a clear and concise description of the problem this solves (e.g. "I'm always frustrated when...").
+      placeholder: Describe the problem or constraint...
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: Describe the Solution
+      description: Provide a clear and concise description of the feature or behavior you want to see.
+      placeholder: Describe the solution or new behavior...
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives-considered
+    attributes:
+      label: Alternatives Considered
+      description: Describe any alternative solutions or workarounds you've thought about.
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context or screenshots about the feature request here.

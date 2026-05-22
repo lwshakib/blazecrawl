@@ -9,7 +9,11 @@ export interface AuthenticatedRequest extends Request {
   }
 }
 
-export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   let token = req.cookies?.session
 
   if (!token && req.headers.authorization?.startsWith("Bearer ")) {

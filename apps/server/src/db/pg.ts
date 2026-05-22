@@ -12,7 +12,7 @@ export const initDb = async () => {
   try {
     // Enable uuid-ossp for uuid generation
     await client.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`)
-    
+
     await client.query(`
       CREATE TABLE IF NOT EXISTS users (
         id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),

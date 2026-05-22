@@ -40,64 +40,75 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-background text-foreground font-sans">
+    <div className="flex min-h-screen flex-col bg-background font-sans text-foreground lg:flex-row">
       {/* Left Pane: Split Showcase (Visible on Large Screens) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-muted/20 border-r border-border p-16 flex-col justify-between relative overflow-hidden">
+      <div className="relative hidden flex-col justify-between overflow-hidden border-r border-border bg-muted/20 p-16 lg:flex lg:w-1/2">
         {/* Decorative Grid Background */}
-        <div className="absolute inset-0 z-0 opacity-[0.015] pointer-events-none" 
-             style={{ backgroundImage: "radial-gradient(circle, var(--foreground) 1px, transparent 1px)", backgroundSize: "24px 24px" }} 
+        <div
+          className="pointer-events-none absolute inset-0 z-0 opacity-[0.015]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, var(--foreground) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-background/0 via-background/0 to-muted/30 z-0 pointer-events-none" />
+        <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-br from-background/0 via-background/0 to-muted/30" />
 
-        <div className="flex items-center gap-2.5 relative z-10">
-          <Logo className="w-6 h-6 text-foreground" />
-          <span className="text-lg font-semibold tracking-tight">BlazeCrawl</span>
+        <div className="relative z-10 flex items-center gap-2.5">
+          <Logo className="h-6 w-6 text-foreground" />
+          <span className="text-lg font-semibold tracking-tight">
+            BlazeCrawl
+          </span>
         </div>
 
-        <div className="relative z-10 space-y-6 max-w-md my-auto">
-          <Badge variant="secondary" className="font-mono text-[9px] tracking-wider px-2 py-0.5 rounded uppercase">
+        <div className="relative z-10 my-auto max-w-md space-y-6">
+          <Badge
+            variant="secondary"
+            className="rounded px-2 py-0.5 font-mono text-[9px] tracking-wider uppercase"
+          >
             Data Integrity Protocol
           </Badge>
-          <h2 className="text-3xl font-bold leading-tight tracking-tight">
+          <h2 className="text-3xl leading-tight font-bold tracking-tight">
             The professional data extraction workspace.
           </h2>
-          <p className="text-sm text-muted-foreground leading-relaxed font-sans">
-            Extract, structure, and sync web data in real-time. Secure, passwordless authentication using instant email verification links.
+          <p className="font-sans text-sm leading-relaxed text-muted-foreground">
+            Extract, structure, and sync web data in real-time. Secure,
+            passwordless authentication using instant email verification links.
           </p>
 
           {/* Mini Mock Dashboard */}
-          <div className="border border-border/80 bg-background/50 backdrop-blur-sm p-5 rounded-lg font-mono text-[10px] space-y-3 shadow-sm select-none">
+          <div className="space-y-3 rounded-lg border border-border/80 bg-background/50 p-5 font-mono text-[10px] shadow-sm backdrop-blur-sm select-none">
             <div className="flex items-center justify-between border-b border-border/40 pb-2">
               <span className="text-muted-foreground">SYSTEM DIAGNOSTIC</span>
-              <span className="text-foreground font-bold">ONLINE</span>
+              <span className="font-bold text-foreground">ONLINE</span>
             </div>
             <div className="space-y-1 text-muted-foreground">
               <p>&gt; Initializing crawler node: Tokyo... [OK]</p>
               <p>&gt; Rotation of proxy IP cluster... [OK]</p>
               <p>&gt; Payload extraction rate: 1.2s</p>
             </div>
-            <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
-              <div className="h-full bg-foreground w-[92%]" />
+            <div className="h-1 w-full overflow-hidden rounded-full bg-muted">
+              <div className="h-full w-[92%] bg-foreground" />
             </div>
           </div>
         </div>
 
-        <div className="text-xs text-muted-foreground relative z-10 flex items-center gap-2">
-          <Icon icon="solar:shield-check-linear" className="w-4 h-4" />
+        <div className="relative z-10 flex items-center gap-2 text-xs text-muted-foreground">
+          <Icon icon="solar:shield-check-linear" className="h-4 w-4" />
           <span>Compliant with standard security policies.</span>
         </div>
       </div>
 
       {/* Right Pane: Login Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 md:p-16 relative">
-        <div className="w-full max-w-sm flex flex-col justify-between min-h-[450px]">
+      <div className="relative flex w-full items-center justify-center p-8 md:p-16 lg:w-1/2">
+        <div className="flex min-h-[450px] w-full max-w-sm flex-col justify-between">
           {/* Top Header */}
-          <div className="flex flex-col items-start mb-8">
-            <Logo className="w-8 h-8 text-foreground mb-6 lg:hidden" />
-            <h1 className="text-2xl font-bold tracking-tight mb-2 font-sans">
+          <div className="mb-8 flex flex-col items-start">
+            <Logo className="mb-6 h-8 w-8 text-foreground lg:hidden" />
+            <h1 className="mb-2 font-sans text-2xl font-bold tracking-tight">
               Sign in to BlazeCrawl
             </h1>
-            <p className="text-sm text-muted-foreground font-sans">
+            <p className="font-sans text-sm text-muted-foreground">
               Enter your email to receive a secure verification link.
             </p>
           </div>
@@ -107,7 +118,10 @@ export default function LoginPage() {
               {/* Form Input fields */}
               <form className="space-y-5" onSubmit={handleAuth}>
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider font-sans">
+                  <label
+                    htmlFor="email"
+                    className="font-sans text-[10px] font-bold tracking-wider text-muted-foreground uppercase"
+                  >
                     Email Address
                   </label>
                   <Input
@@ -117,7 +131,7 @@ export default function LoginPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@company.com"
-                    className="h-10 text-sm font-sans"
+                    className="h-10 font-sans text-sm"
                   />
                 </div>
 
@@ -125,7 +139,7 @@ export default function LoginPage() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-10 mt-2 font-medium font-sans"
+                  className="mt-2 h-10 w-full font-sans font-medium"
                 >
                   {loading ? "Sending..." : "Send Verification Link"}
                 </Button>
@@ -133,30 +147,40 @@ export default function LoginPage() {
             </div>
           ) : (
             /* Sent Verification Email View */
-            <div className="text-center space-y-8 animate-in fade-in duration-500 flex-1 flex flex-col justify-center">
+            <div className="flex flex-1 animate-in flex-col justify-center space-y-8 text-center duration-500 fade-in">
               <div className="flex flex-col items-center">
-                <div className="w-14 h-14 border border-border flex items-center justify-center mb-6 bg-muted/20 rounded-md">
-                  <Icon icon="solar:letter-opened-linear" className="w-6 h-6 text-foreground" />
+                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-md border border-border bg-muted/20">
+                  <Icon
+                    icon="solar:letter-opened-linear"
+                    className="h-6 w-6 text-foreground"
+                  />
                 </div>
-                <h2 className="text-lg font-bold text-foreground mb-2 font-sans">Check your inbox</h2>
-                <p className="text-sm text-muted-foreground max-w-[280px] mx-auto leading-relaxed font-sans">
-                  We've sent a verification link to <span className="font-semibold text-foreground">{email}</span>. Please open it to verify your authentication.
+                <h2 className="mb-2 font-sans text-lg font-bold text-foreground">
+                  Check your inbox
+                </h2>
+                <p className="mx-auto max-w-[280px] font-sans text-sm leading-relaxed text-muted-foreground">
+                  We've sent a verification link to{" "}
+                  <span className="font-semibold text-foreground">{email}</span>
+                  . Please open it to verify your authentication.
                 </p>
               </div>
 
-              <div className="space-y-3 w-full">
+              <div className="w-full space-y-3">
                 <Button
                   onClick={handleAuth}
                   disabled={loading}
                   variant="outline"
-                  className="w-full h-10 bg-transparent text-sm gap-2 font-sans font-medium"
+                  className="h-10 w-full gap-2 bg-transparent font-sans text-sm font-medium"
                 >
                   {loading ? "Sending..." : "Resend Link"}
-                  <Icon icon="solar:refresh-linear" className="w-4 h-4" />
+                  <Icon icon="solar:refresh-linear" className="h-4 w-4" />
                 </Button>
                 <button
-                  onClick={() => { setSent(false); setMessage("") }}
-                  className="w-full text-[10px] font-bold text-muted-foreground hover:text-foreground transition-colors tracking-widest uppercase font-sans"
+                  onClick={() => {
+                    setSent(false)
+                    setMessage("")
+                  }}
+                  className="w-full font-sans text-[10px] font-bold tracking-widest text-muted-foreground uppercase transition-colors hover:text-foreground"
                 >
                   Change Email
                 </button>
@@ -165,14 +189,19 @@ export default function LoginPage() {
           )}
 
           {message && !sent && (
-            <p className="mt-4 text-center text-xs text-muted-foreground font-sans">
+            <p className="mt-4 text-center font-sans text-xs text-muted-foreground">
               {message}
             </p>
           )}
 
           {/* Bottom Footer Links */}
-          <div className="mt-12 pt-6 border-t border-border/60 flex justify-between items-center text-xs text-muted-foreground font-sans">
-            <a href="/" className="hover:text-foreground transition-colors font-medium">← Back to Home</a>
+          <div className="mt-12 flex items-center justify-between border-t border-border/60 pt-6 font-sans text-xs text-muted-foreground">
+            <a
+              href="/"
+              className="font-medium transition-colors hover:text-foreground"
+            >
+              ← Back to Home
+            </a>
           </div>
         </div>
       </div>

@@ -1,0 +1,54 @@
+name: Bug Report
+description: File a report to help us reproduce and fix an issue.
+title: "[BUG] "
+labels: ["bug", "triage"]
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: describe-bug
+    attributes:
+      label: Describe the Bug
+      description: Provide a clear and concise description of what the bug is.
+      placeholder: Describe what happened...
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Detail the steps required to reproduce the behavior.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: Provide a clear and concise description of what you expected to happen.
+      placeholder: What should have happened...
+    validations:
+      required: true
+  - type: textarea
+    id: logs-screenshots
+    attributes:
+      label: Console Logs or Screenshots
+      description: Paste relevant logs, errors, or drag-and-drop screenshots here.
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Execution Environment
+      description: What environment does this error manifest in?
+      options:
+        - Development (local node)
+        - Staging / Production
+        - Other / Browser Specific
+    validations:
+      required: false

@@ -51,16 +51,19 @@ export default function OverviewPage() {
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen w-full bg-background text-foreground font-sans">
+      <div className="flex min-h-screen w-full bg-background font-sans text-foreground">
         {/* Shadcn SideBar Component */}
         <AppSidebar handleLogout={handleLogout} />
 
         {/* main container */}
-        <SidebarInset className="flex-1 flex flex-col min-h-screen bg-background">
-          <header className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/40 backdrop-blur-md sticky top-0 z-10">
+        <SidebarInset className="flex min-h-screen flex-1 flex-col bg-background">
+          <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b border-border/40 bg-card/40 px-6 backdrop-blur-md">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="hover:bg-muted/60" />
-              <Separator orientation="vertical" className="h-4 bg-border/40" />
+              <Separator
+                orientation="vertical"
+                className="!h-4 h-4 !self-center bg-border/40"
+              />
               <span className="text-sm font-semibold tracking-tight text-foreground">
                 Dashboard Overview
               </span>
@@ -70,41 +73,71 @@ export default function OverviewPage() {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-                className="h-9 w-9 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted/40"
+                onClick={() =>
+                  setTheme(resolvedTheme === "dark" ? "light" : "dark")
+                }
+                className="h-9 w-9 text-muted-foreground transition-colors hover:bg-muted/40 hover:text-foreground"
                 title="Toggle Theme"
               >
                 {resolvedTheme === "dark" ? (
-                  <Icon icon="solar:sun-linear" className="w-4 h-4" />
+                  <Icon icon="solar:sun-linear" className="h-4 w-4" />
                 ) : (
-                  <Icon icon="solar:moon-linear" className="w-4 h-4" />
+                  <Icon icon="solar:moon-linear" className="h-4 w-4" />
                 )}
                 <span className="sr-only">Toggle theme</span>
               </Button>
             </div>
           </header>
 
-          <main className="p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto flex-1 flex flex-col">
+          <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col space-y-8 p-6 md:p-8">
             {/* stats card row */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Active Nodes", value: "12", icon: "solar:server-linear", desc: "Running worldwide" },
-                { label: "Pages Scraped", value: "1.2M", icon: "solar:document-linear", desc: "+12.4% this week" },
-                { label: "Success Rate", value: "99.9%", icon: "solar:check-circle-linear", desc: "Live parsed payload" },
-                { label: "Data Volume", value: "4.2 TB", icon: "solar:database-linear", desc: "Distributed storage" },
+                {
+                  label: "Active Nodes",
+                  value: "12",
+                  icon: "solar:server-linear",
+                  desc: "Running worldwide",
+                },
+                {
+                  label: "Pages Scraped",
+                  value: "1.2M",
+                  icon: "solar:document-linear",
+                  desc: "+12.4% this week",
+                },
+                {
+                  label: "Success Rate",
+                  value: "99.9%",
+                  icon: "solar:check-circle-linear",
+                  desc: "Live parsed payload",
+                },
+                {
+                  label: "Data Volume",
+                  value: "4.2 TB",
+                  icon: "solar:database-linear",
+                  desc: "Distributed storage",
+                },
               ].map((stat, idx) => (
-                <Card key={idx} className="border border-border/60 bg-card/40 backdrop-blur-sm shadow-xs hover:border-foreground/20 hover:shadow-md transition-all duration-300">
-                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
-                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                <Card
+                  key={idx}
+                  className="border border-border/60 bg-card/40 shadow-xs backdrop-blur-sm transition-all duration-300 hover:border-foreground/20 hover:shadow-md"
+                >
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
                       {stat.label}
                     </span>
-                    <div className="p-2 border border-border/40 bg-muted/20 rounded-md">
-                      <Icon icon={stat.icon} className="w-4 h-4 text-foreground" />
+                    <div className="rounded-md border border-border/40 bg-muted/20 p-2">
+                      <Icon
+                        icon={stat.icon}
+                        className="h-4 w-4 text-foreground"
+                      />
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <div className="text-2xl font-bold tracking-tight mb-1">{stat.value}</div>
-                    <span className="text-[10px] text-muted-foreground font-medium">
+                    <div className="mb-1 text-2xl font-bold tracking-tight">
+                      {stat.value}
+                    </div>
+                    <span className="text-[10px] font-medium text-muted-foreground">
                       {stat.desc}
                     </span>
                   </CardContent>
@@ -113,54 +146,121 @@ export default function OverviewPage() {
             </div>
 
             {/* Performance charts & Logs row */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
               {/* Graphic Mock Chart */}
-              <Card className="lg:col-span-2 border border-border/60 bg-card/30 backdrop-blur-sm shadow-xs">
-                <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/20">
+              <Card className="border border-border/60 bg-card/30 shadow-xs backdrop-blur-sm lg:col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between border-b border-border/20 pb-4">
                   <div>
-                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
+                    <CardTitle className="text-sm font-bold tracking-wider text-foreground uppercase">
                       Crawl Performance
                     </CardTitle>
-                    <CardDescription className="text-xs text-muted-foreground font-sans">
+                    <CardDescription className="font-sans text-xs text-muted-foreground">
                       Continuous real-time payload synchronizations
                     </CardDescription>
                   </div>
-                  <Badge variant="outline" className="font-mono text-[9px] uppercase px-2 py-0.5 tracking-wider">
+                  <Badge
+                    variant="outline"
+                    className="px-2 py-0.5 font-mono text-[9px] tracking-wider uppercase"
+                  >
                     24h Live Stream
                   </Badge>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <div className="h-64 flex flex-col justify-between relative">
+                  <div className="relative flex h-64 flex-col justify-between">
                     {/* SVG Line Chart */}
                     <div className="absolute inset-0 z-0">
-                      <svg className="w-full h-full text-foreground/90" viewBox="0 0 500 200" preserveAspectRatio="none" fill="none" stroke="currentColor">
+                      <svg
+                        className="h-full w-full text-foreground/90"
+                        viewBox="0 0 500 200"
+                        preserveAspectRatio="none"
+                        fill="none"
+                        stroke="currentColor"
+                      >
                         <defs>
-                          <linearGradient id="chart-area-grad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="var(--foreground)" stopOpacity="0.08" />
-                            <stop offset="100%" stopColor="var(--foreground)" stopOpacity="0.0" />
+                          <linearGradient
+                            id="chart-area-grad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor="var(--foreground)"
+                              stopOpacity="0.08"
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor="var(--foreground)"
+                              stopOpacity="0.0"
+                            />
                           </linearGradient>
                         </defs>
                         {/* Area */}
-                        <path d="M0,160 C80,140 120,40 200,90 C280,140 320,60 400,30 C450,15 480,85 500,60 L500,200 L0,200 Z" fill="url(#chart-area-grad)" />
-                        
+                        <path
+                          d="M0,160 C80,140 120,40 200,90 C280,140 320,60 400,30 C450,15 480,85 500,60 L500,200 L0,200 Z"
+                          fill="url(#chart-area-grad)"
+                        />
+
                         {/* Horizontal Grid guidelines */}
-                        <line x1="0" y1="50" x2="500" y2="50" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1" />
-                        <line x1="0" y1="100" x2="500" y2="100" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1" />
-                        <line x1="0" y1="150" x2="500" y2="150" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1" />
-                        
+                        <line
+                          x1="0"
+                          y1="50"
+                          x2="500"
+                          y2="50"
+                          stroke="currentColor"
+                          strokeOpacity="0.05"
+                          strokeWidth="1"
+                        />
+                        <line
+                          x1="0"
+                          y1="100"
+                          x2="500"
+                          y2="100"
+                          stroke="currentColor"
+                          strokeOpacity="0.05"
+                          strokeWidth="1"
+                        />
+                        <line
+                          x1="0"
+                          y1="150"
+                          x2="500"
+                          y2="150"
+                          stroke="currentColor"
+                          strokeOpacity="0.05"
+                          strokeWidth="1"
+                        />
+
                         {/* Path Line */}
-                        <path d="M0,160 C80,140 120,40 200,90 C280,140 320,60 400,30 C450,15 480,85 500,60" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-                        
+                        <path
+                          d="M0,160 C80,140 120,40 200,90 C280,140 320,60 400,30 C450,15 480,85 500,60"
+                          stroke="currentColor"
+                          strokeWidth="2.5"
+                          strokeLinecap="round"
+                        />
+
                         {/* Active points */}
-                        <circle cx="200" cy="90" r="4.5" className="fill-background stroke-foreground" strokeWidth="2" />
-                        <circle cx="400" cy="30" r="4.5" className="fill-background stroke-foreground" strokeWidth="2" />
+                        <circle
+                          cx="200"
+                          cy="90"
+                          r="4.5"
+                          className="fill-background stroke-foreground"
+                          strokeWidth="2"
+                        />
+                        <circle
+                          cx="400"
+                          cy="30"
+                          r="4.5"
+                          className="fill-background stroke-foreground"
+                          strokeWidth="2"
+                        />
                       </svg>
                     </div>
 
                     <div className="flex-1" />
 
                     {/* Chart axis label info */}
-                    <div className="flex justify-between items-center text-[9px] font-mono text-muted-foreground border-t border-border/20 pt-2 relative z-10">
+                    <div className="relative z-10 flex items-center justify-between border-t border-border/20 pt-2 font-mono text-[9px] text-muted-foreground">
                       <span>06:00 AM</span>
                       <span>12:00 PM</span>
                       <span>06:00 PM</span>
@@ -172,42 +272,54 @@ export default function OverviewPage() {
               </Card>
 
               {/* Logs card */}
-              <Card className="border border-border/60 bg-card/30 backdrop-blur-sm shadow-xs flex flex-col">
-                <CardHeader className="pb-4 border-b border-border/20">
-                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
+              <Card className="flex flex-col border border-border/60 bg-card/30 shadow-xs backdrop-blur-sm">
+                <CardHeader className="border-b border-border/20 pb-4">
+                  <CardTitle className="text-sm font-bold tracking-wider text-foreground uppercase">
                     System Activity Log
                   </CardTitle>
-                  <CardDescription className="text-xs text-muted-foreground font-sans">
+                  <CardDescription className="font-sans text-xs text-muted-foreground">
                     Chronological events from parsing nodes
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="pt-6 flex-1 flex flex-col justify-between">
+                <CardContent className="flex flex-1 flex-col justify-between pt-6">
                   <div className="space-y-6">
                     {[
-                      { user: "System", action: "Node Alpha Re-synced", time: "2m ago", icon: "solar:server-linear" },
-                      { user: "Crawler", action: "New dataset: product_data_v2", time: "15m ago", icon: "solar:document-linear" },
-                      { user: "Auth", action: "Successful verification login", time: "1h ago", icon: "solar:shield-check-linear" },
+                      {
+                        user: "System",
+                        action: "Node Alpha Re-synced",
+                        time: "2m ago",
+                        icon: "solar:server-linear",
+                      },
+                      {
+                        user: "Crawler",
+                        action: "New dataset: product_data_v2",
+                        time: "15m ago",
+                        icon: "solar:document-linear",
+                      },
+                      {
+                        user: "Auth",
+                        action: "Successful verification login",
+                        time: "1h ago",
+                        icon: "solar:shield-check-linear",
+                      },
                     ].map((act, i) => (
-                      <div key={i} className="flex gap-4 items-start">
-                        <div className="w-8 h-8 rounded-md border border-border/40 bg-muted/30 flex items-center justify-center shrink-0">
-                          <Icon icon={act.icon} className="w-4 h-4 text-muted-foreground" />
+                      <div key={i} className="flex items-start gap-4">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-border/40 bg-muted/30">
+                          <Icon
+                            icon={act.icon}
+                            className="h-4 w-4 text-muted-foreground"
+                          />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-semibold text-foreground truncate">{act.action}</p>
-                          <span className="text-[10px] text-muted-foreground font-medium block mt-0.5">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-foreground">
+                            {act.action}
+                          </p>
+                          <span className="mt-0.5 block text-[10px] font-medium text-muted-foreground">
                             {act.time} • {act.user}
                           </span>
                         </div>
                       </div>
                     ))}
-                  </div>
-
-                  <div className="mt-8 pt-4 border-t border-border/20 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
-                    <span>STATUS: ALL NODES OK</span>
-                    <span className="flex items-center gap-1">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                      100% SECURE
-                    </span>
                   </div>
                 </CardContent>
               </Card>

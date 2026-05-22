@@ -1,5 +1,16 @@
-import { S3Client, HeadBucketCommand, CreateBucketCommand, PutBucketCorsCommand } from "@aws-sdk/client-s3"
-import { AWS_REGION, AWS_ENDPOINT, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_S3_BUCKET_NAME } from "../envs.js"
+import {
+  S3Client,
+  HeadBucketCommand,
+  CreateBucketCommand,
+  PutBucketCorsCommand,
+} from "@aws-sdk/client-s3"
+import {
+  AWS_REGION,
+  AWS_ENDPOINT,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
+  AWS_S3_BUCKET_NAME,
+} from "../envs.js"
 import logger from "../logger/winston.logger.js"
 
 export const s3Client = new S3Client({
@@ -17,9 +28,11 @@ export async function setupBucket() {
     logger.warn("[S3 Setup] AWS_S3_BUCKET_NAME is not set, skipping setup.")
     return
   }
-  
+
   try {
-    logger.info(`[S3 Setup] Checking if bucket "${AWS_S3_BUCKET_NAME}" exists...`)
+    logger.info(
+      `[S3 Setup] Checking if bucket "${AWS_S3_BUCKET_NAME}" exists...`
+    )
     let exists = true
     try {
       await s3Client.send(new HeadBucketCommand({ Bucket: AWS_S3_BUCKET_NAME }))
@@ -35,11 +48,17 @@ export async function setupBucket() {
 
     if (!exists) {
       logger.info(`[S3 Setup] Creating bucket "${AWS_S3_BUCKET_NAME}"...`)
-      await s3Client.send(new CreateBucketCommand({ Bucket: AWS_S3_BUCKET_NAME }))
-      logger.info(`[S3 Setup] Bucket "${AWS_S3_BUCKET_NAME}" created successfully.`)
+      await s3Client.send(
+        new CreateBucketCommand({ Bucket: AWS_S3_BUCKET_NAME })
+      )
+      logger.info(
+        `[S3 Setup] Bucket "${AWS_S3_BUCKET_NAME}" created successfully.`
+      )
     }
 
-    logger.info(`[S3 Setup] Applying CORS configuration to "${AWS_S3_BUCKET_NAME}"...`)
+    logger.info(
+      `[S3 Setup] Applying CORS configuration to "${AWS_S3_BUCKET_NAME}"...`
+    )
     await s3Client.send(
       new PutBucketCorsCommand({
         Bucket: AWS_S3_BUCKET_NAME,
@@ -58,7 +77,9 @@ export async function setupBucket() {
     )
     logger.info(`[S3 Setup] CORS configuration applied successfully.`)
   } catch (error: any) {
-    logger.error(`[S3 Setup] Failed to set up bucket: ${error.message || error}`)
+    logger.error(
+      `[S3 Setup] Failed to set up bucket: ${error.message || error}`
+    )
     throw error
   }
 }

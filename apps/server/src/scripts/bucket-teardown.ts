@@ -1,17 +1,25 @@
-import { ListObjectsV2Command, DeleteObjectsCommand, DeleteBucketCommand } from "@aws-sdk/client-s3"
+import {
+  ListObjectsV2Command,
+  DeleteObjectsCommand,
+  DeleteBucketCommand,
+} from "@aws-sdk/client-s3"
 import { s3Client } from "./bucket-setup.js"
 import { AWS_S3_BUCKET_NAME } from "../envs.js"
 import logger from "../logger/winston.logger.js"
 
 export async function teardownBucket() {
   if (!AWS_S3_BUCKET_NAME) {
-    logger.warn("[S3 Teardown] AWS_S3_BUCKET_NAME is not set, skipping teardown.")
+    logger.warn(
+      "[S3 Teardown] AWS_S3_BUCKET_NAME is not set, skipping teardown."
+    )
     return
   }
 
   try {
-    logger.info(`[S3 Teardown] Cleaning up objects in bucket "${AWS_S3_BUCKET_NAME}"...`)
-    
+    logger.info(
+      `[S3 Teardown] Cleaning up objects in bucket "${AWS_S3_BUCKET_NAME}"...`
+    )
+
     // 1. List all objects
     const listResponse = await s3Client.send(
       new ListObjectsV2Command({
@@ -39,14 +47,23 @@ export async function teardownBucket() {
     // 3. Delete the bucket
     logger.info(`[S3 Teardown] Deleting bucket "${AWS_S3_BUCKET_NAME}"...`)
     await s3Client.send(new DeleteBucketCommand({ Bucket: AWS_S3_BUCKET_NAME }))
-    logger.info(`[S3 Teardown] Bucket "${AWS_S3_BUCKET_NAME}" deleted successfully.`)
+    logger.info(
+      `[S3 Teardown] Bucket "${AWS_S3_BUCKET_NAME}" deleted successfully.`
+    )
   } catch (error: any) {
     // If the bucket was not found, treat it as a success/noop
-    if (error.name === "NoSuchBucket" || error.$metadata?.httpStatusCode === 404) {
-      logger.info(`[S3 Teardown] Bucket "${AWS_S3_BUCKET_NAME}" does not exist, nothing to delete.`)
+    if (
+      error.name === "NoSuchBucket" ||
+      error.$metadata?.httpStatusCode === 404
+    ) {
+      logger.info(
+        `[S3 Teardown] Bucket "${AWS_S3_BUCKET_NAME}" does not exist, nothing to delete.`
+      )
       return
     }
-    logger.error(`[S3 Teardown] Failed to tear down bucket: ${error.message || error}`)
+    logger.error(
+      `[S3 Teardown] Failed to tear down bucket: ${error.message || error}`
+    )
     throw error
   }
 }

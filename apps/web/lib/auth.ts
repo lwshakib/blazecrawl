@@ -19,7 +19,7 @@ export interface UserSession {
 /**
  * Verifies a JWT token using the HMAC SHA-256 algorithm and the global Web Crypto API.
  * This is 100% compatible with Next.js Edge Runtime and standard Node.js.
- * 
+ *
  * @param token The JWT string to verify.
  * @param secret The secret key (defaults to "supersecret").
  * @returns Decoded session payload if valid, otherwise null.
@@ -78,12 +78,14 @@ export async function verifyJWT(
 
 /**
  * Checks if the request contains a valid, active session token in its cookies.
- * 
+ *
  * @param requestCookies Cookies object or request-like cookies interface.
  * @returns Decoded session payload if authenticated, otherwise null.
  */
 export async function getSession(
-  requestCookies: { get: (name: string) => { value: string } | undefined } | undefined
+  requestCookies:
+    | { get: (name: string) => { value: string } | undefined }
+    | undefined
 ): Promise<UserSession | null> {
   const cookie = requestCookies?.get("session")
   if (!cookie || !cookie.value) return null

@@ -45,17 +45,17 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 const data = {
   navMain: [
     { name: "Overview", url: "/overview", icon: "solar:widget-linear" },
-    { name: "Scrape a Web Page", url: "/scrape", icon: "solar:document-text-linear" },
+    {
+      name: "Scrape a Web Page",
+      url: "/scrape",
+      icon: "solar:document-text-linear",
+    },
     { name: "Settings", url: "/settings", icon: "solar:settings-linear" },
-  ]
+  ],
 }
 
 // 2. NavMain: Handles clean flat navigation items with direct HTML routing links
-export function NavMain({
-  items,
-}: {
-  items: NavigationItem[]
-}) {
+export function NavMain({ items }: { items: NavigationItem[] }) {
   const pathname = usePathname()
 
   return (
@@ -65,13 +65,16 @@ export function NavMain({
           {items.map((item) => (
             <SidebarMenuItem key={item.name} className="my-0.5">
               <SidebarMenuButton
-                isActive={pathname === item.url || (item.url === "/overview" && pathname === "/")}
+                isActive={
+                  pathname === item.url ||
+                  (item.url === "/overview" && pathname === "/")
+                }
                 asChild
                 tooltip={item.name}
-                className="transition-colors h-9"
+                className="h-9 transition-colors"
               >
-                <Link href={item.url} className="flex items-center w-full">
-                  <Icon icon={item.icon} className="w-4 h-4 shrink-0 mr-2" />
+                <Link href={item.url} className="flex w-full items-center">
+                  <Icon icon={item.icon} className="mr-2 h-4 w-4 shrink-0" />
                   <span className="group-data-[collapsible=icon]:hidden">
                     {item.name}
                   </span>
@@ -86,11 +89,7 @@ export function NavMain({
 }
 
 // 3. NavUser: Footer component handling Account and Log Out buttons without borders
-export function NavUser({
-  handleLogout,
-}: {
-  handleLogout: () => void
-}) {
+export function NavUser({ handleLogout }: { handleLogout: () => void }) {
   const pathname = usePathname()
 
   return (
@@ -101,11 +100,13 @@ export function NavUser({
           isActive={pathname === "/account"}
           asChild
           tooltip="Account"
-          className="transition-colors h-9"
+          className="h-9 transition-colors"
         >
-          <Link href="/account" className="flex items-center w-full">
-            <Icon icon="solar:user-linear" className="w-4 h-4 shrink-0 mr-2" />
-            <span className="group-data-[collapsible=icon]:hidden">Account</span>
+          <Link href="/account" className="flex w-full items-center">
+            <Icon icon="solar:user-linear" className="mr-2 h-4 w-4 shrink-0" />
+            <span className="group-data-[collapsible=icon]:hidden">
+              Account
+            </span>
           </Link>
         </SidebarMenuButton>
       </SidebarMenuItem>
@@ -116,22 +117,30 @@ export function NavUser({
           <AlertDialogTrigger asChild>
             <SidebarMenuButton
               tooltip="Log Out"
-              className="transition-colors h-9"
+              className="h-9 transition-colors"
             >
-              <Icon icon="solar:logout-linear" className="w-4 h-4 shrink-0 mr-2" />
-              <span className="group-data-[collapsible=icon]:hidden">Log Out</span>
+              <Icon
+                icon="solar:logout-linear"
+                className="mr-2 h-4 w-4 shrink-0"
+              />
+              <span className="group-data-[collapsible=icon]:hidden">
+                Log Out
+              </span>
             </SidebarMenuButton>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will end your active session on BlazeCrawl and redirect you back to the login screen.
+                This will end your active session on BlazeCrawl and redirect you
+                back to the login screen.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={handleLogout}>Log Out</AlertDialogAction>
+              <AlertDialogAction onClick={handleLogout}>
+                Log Out
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -141,17 +150,18 @@ export function NavUser({
 }
 
 // 4. Main AppSidebar component exporting the final sidebar structure with decreased top gap
-export function AppSidebar({
-  handleLogout,
-  ...props
-}: AppSidebarProps) {
+export function AppSidebar({ handleLogout, ...props }: AppSidebarProps) {
   return (
-    <Sidebar collapsible="icon" className="border-r border-border/60 bg-card" {...props}>
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-border/60 bg-card"
+      {...props}
+    >
       {/* Sidebar Header: Logo and App Name aligned to start and matching menu items alignment */}
-      <SidebarHeader className="h-14 flex justify-center p-2 border-b-0">
-        <div className="flex items-center gap-2.5 px-2 overflow-hidden w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <Logo className="w-7 h-7 text-foreground shrink-0 animate-pulse" />
-          <span className="font-bold text-lg tracking-tight truncate group-data-[collapsible=icon]:hidden transition-opacity duration-200">
+      <SidebarHeader className="flex h-14 justify-center border-b-0 p-2">
+        <div className="flex w-full items-center gap-2.5 overflow-hidden px-2 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <Logo className="h-7 w-7 shrink-0 animate-pulse text-foreground" />
+          <span className="truncate text-lg font-bold tracking-tight transition-opacity duration-200 group-data-[collapsible=icon]:hidden">
             BlazeCrawl
           </span>
         </div>

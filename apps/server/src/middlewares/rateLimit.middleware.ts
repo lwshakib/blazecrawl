@@ -6,14 +6,18 @@ import { asyncHandler } from "../utils/asyncHandler.js"
 /**
  * Redis-based Rate Limiter Middleware.
  * Uses a Fixed Window algorithm with a Lua script for atomicity.
- * 
+ *
  * @param limit - Maximum number of requests allowed in the window
  * @param windowSeconds - Duration of the window in seconds
  */
-export const rateLimiter = (limit: number = 100, windowSeconds: number = 900): RequestHandler => 
+export const rateLimiter = (
+  limit: number = 100,
+  windowSeconds: number = 900
+): RequestHandler =>
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     // Generate a unique key based on the user's IP (or user ID if available)
-    const ip = req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress
+    const ip =
+      req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress
     const key = `rate_limit:${ip}`
 
     /**
@@ -30,7 +34,7 @@ export const rateLimiter = (limit: number = 100, windowSeconds: number = 900): R
     `
 
     // Execute the Lua script atomically
-    const count = await redis.eval(luaScript, 1, key, windowSeconds) as number
+    const count = (await redis.eval(luaScript, 1, key, windowSeconds)) as number
 
     // Set rate limit headers
     res.setHeader("X-RateLimit-Limit", limit)
