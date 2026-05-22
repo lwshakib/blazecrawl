@@ -2,6 +2,13 @@
 
 BlazeCrawl is a high-performance, premium web scraping, data extraction, and content synchronization platform. Powered by an optimized browser pool and a dynamic dashboard visualizer, it simplifies web data extraction into clean, structured Markdown, Summary, Links, HTML, Screenshots, and Branding tokens.
 
+<table>
+  <tr>
+    <td width="50%"><img src="./apps/web/public/demos/app-demo-dark.png" alt="BlazeCrawl dark app demo" width="100%" /></td>
+    <td width="50%"><img src="./apps/web/public/demos/app-demo-light.png" alt="BlazeCrawl light app demo" width="100%" /></td>
+  </tr>
+</table>
+
 ---
 
 ## 🏗️ Architecture Workflow
