@@ -1,113 +1,313 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Logo } from "@/components/Logo"
 import { Icon } from "@iconify/react"
+import { useTheme } from "next-themes"
+import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
+import { Separator } from "@workspace/ui/components/separator"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workspace/ui/components/card"
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarRail,
+  SidebarTrigger,
+} from "@workspace/ui/components/sidebar"
 
 export default function OverviewPage() {
+  const { resolvedTheme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [userEmail, setUserEmail] = useState<string>("admin@blazecrawl.com")
+  const [activeItem, setActiveItem] = useState("Overview")
+
+  useEffect(() => {
+    setMounted(true)
+    fetch("/api/auth/me")
+      .then((res) => {
+        if (res.ok) return res.json()
+        throw new Error()
+      })
+      .then((data) => {
+        if (data.email) {
+          setUserEmail(data.email)
+        }
+      })
+      .catch(() => {
+        // Fallback user email in dev/mock environments
+        setUserEmail("admin@blazecrawl.com")
+      })
+  }, [])
+
+  const handleLogout = () => {
+    document.cookie = "session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;"
+    window.location.href = "/login"
+  }
+
+  if (!mounted) return null
+
+  const navigationItems = [
+    { name: "Overview", icon: "solar:widget-linear" },
+    { name: "Crawlers", icon: "solar:layers-linear" },
+    { name: "Datasets", icon: "solar:database-linear" },
+    { name: "Settings", icon: "solar:settings-linear" },
+  ]
+
   return (
-    <div className="min-h-screen bg-black text-white font-jakarta">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 bottom-0 w-64 border-r border-[#FFAB00]/10 bg-[#030303] z-20">
-        <div className="p-6 border-b border-[#FFAB00]/10 flex items-center gap-2">
-          <Logo className="w-6 h-6 text-[#FFAB00]" />
-          <span className="font-semibold text-lg">BlazeCrawl</span>
-        </div>
-        
-        <nav className="p-4 space-y-2">
-          <a href="#" className="flex items-center gap-3 px-4 py-3 bg-[#FFAB00]/10 text-[#FFAB00] rounded-none">
-            <Icon icon="solar:widget-linear" className="w-5 h-5" />
-            <span className="text-sm font-medium">Overview</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-orange-50/60 hover:bg-white/5 transition-colors rounded-none">
-            <Icon icon="solar:layers-linear" className="w-5 h-5" />
-            <span className="text-sm font-medium">Crawlers</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-orange-50/60 hover:bg-white/5 transition-colors rounded-none">
-            <Icon icon="solar:database-linear" className="w-5 h-5" />
-            <span className="text-sm font-medium">Datasets</span>
-          </a>
-          <a href="#" className="flex items-center gap-3 px-4 py-3 text-orange-50/60 hover:bg-white/5 transition-colors rounded-none">
-            <Icon icon="solar:settings-linear" className="w-5 h-5" />
-            <span className="text-sm font-medium">Settings</span>
-          </a>
-        </nav>
-      </aside>
-
-      {/* Main Content */}
-      <main className="pl-64">
-        <header className="h-20 border-b border-[#FFAB00]/10 flex items-center justify-between px-8 bg-black/50 backdrop-blur-md sticky top-0 z-10">
-          <h2 className="text-xl font-semibold">Dashboard Overview</h2>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 text-green-500 text-[10px] font-semibold uppercase tracking-wider">
-              <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              Network Healthy
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background text-foreground font-sans">
+        {/* Shadcn SideBar Component */}
+        <Sidebar collapsible="icon" className="border-r border-border/60 bg-card">
+          <SidebarHeader className="h-16 flex items-center justify-between px-4 border-b border-border/40">
+            <div className="flex items-center gap-2.5 overflow-hidden group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:w-full">
+              <Logo className="w-5 h-5 text-foreground shrink-0" />
+              <span className="font-semibold text-sm tracking-tight group-data-[collapsible=icon]:hidden transition-opacity duration-200">
+                BlazeCrawl
+              </span>
             </div>
-            <button className="w-10 h-10 border border-[#FFAB00]/20 flex items-center justify-center hover:border-[#FFAB00] transition-colors">
-              <Icon icon="solar:bell-linear" className="w-5 h-5" />
-            </button>
-          </div>
-        </header>
+          </SidebarHeader>
 
-        <div className="p-8 space-y-8">
-          {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-            {[
-              { label: "Active Nodes", value: "12", icon: "solar:server-linear", color: "text-[#FFAB00]" },
-              { label: "Pages Scraped", value: "1.2M", icon: "solar:document-linear", color: "text-blue-400" },
-              { label: "Success Rate", value: "99.9%", icon: "solar:check-circle-linear", color: "text-green-500" },
-              { label: "Data Volume", value: "4.2 TB", icon: "solar:database-linear", color: "text-purple-400" },
-            ].map((stat, i) => (
-              <div key={i} className="p-6 bg-[#0F1A24] border border-[#FFAB00]/10 group hover:border-[#FFAB00]/30 transition-all">
-                <div className="flex justify-between items-start mb-4">
-                  <div className={`p-2 bg-black/40 border border-[#FFAB00]/10 ${stat.color}`}>
-                    <Icon icon={stat.icon} className="w-5 h-5" />
+          <SidebarContent className="py-4">
+            <SidebarGroup>
+              <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">
+                Workspace
+              </SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {navigationItems.map((item) => (
+                    <SidebarMenuItem key={item.name}>
+                      <SidebarMenuButton
+                        isActive={activeItem === item.name}
+                        onClick={() => setActiveItem(item.name)}
+                        tooltip={item.name}
+                        className="transition-colors"
+                      >
+                        <Icon icon={item.icon} className="w-4 h-4 shrink-0" />
+                        <span className="group-data-[collapsible=icon]:hidden">
+                          {item.name}
+                        </span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+          </SidebarContent>
+
+          <SidebarFooter className="border-t border-border/40 p-4">
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <div className="flex items-center gap-3 py-2 px-2 rounded-md overflow-hidden group-data-[collapsible=icon]:justify-center">
+                  <div className="w-6 h-6 border border-border bg-muted/30 rounded-full flex items-center justify-center shrink-0">
+                    <Icon icon="solar:user-linear" className="w-3.5 h-3.5 text-muted-foreground" />
                   </div>
-                  <span className="text-[10px] font-semibold text-orange-50/30 uppercase tracking-widest">LIVE</span>
+                  <div className="flex flex-col min-w-0 group-data-[collapsible=icon]:hidden">
+                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                      User profile
+                    </span>
+                    <span className="text-xs font-medium text-foreground truncate max-w-[120px]">
+                      {userEmail}
+                    </span>
+                  </div>
                 </div>
-                <p className="text-2xl font-bold mb-1">{stat.value}</p>
-                <p className="text-xs text-orange-50/50 font-medium">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+              </SidebarMenuItem>
 
-          {/* Activity Placeholder */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 p-8 bg-[#0F1A24] border border-[#FFAB00]/10">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-lg font-semibold">Crawl Performance</h3>
-                <select className="bg-black border border-[#FFAB00]/20 text-xs px-2 py-1 outline-none">
-                  <option>Last 24 Hours</option>
-                  <option>Last 7 Days</option>
-                </select>
-              </div>
-              <div className="h-64 flex items-center justify-center border border-dashed border-[#FFAB00]/10 opacity-30">
-                <p className="text-xs font-mono">Chart placeholder - Analytics module pending</p>
-              </div>
+              <SidebarMenuItem className="mt-2">
+                <SidebarMenuButton
+                  onClick={handleLogout}
+                  tooltip="Log Out"
+                  className="w-full text-muted-foreground hover:text-foreground hover:bg-destructive/10 transition-colors"
+                >
+                  <Icon icon="solar:logout-linear" className="w-4 h-4 shrink-0" />
+                  <span className="group-data-[collapsible=icon]:hidden">Log Out</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+          <SidebarRail />
+        </Sidebar>
+
+        {/* main container */}
+        <SidebarInset className="flex-1 flex flex-col min-h-screen bg-background">
+          <header className="h-16 flex items-center justify-between px-6 border-b border-border/40 bg-card/40 backdrop-blur-md sticky top-0 z-10">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger className="hover:bg-muted/60" />
+              <Separator orientation="vertical" className="h-4" />
+              <span className="text-sm font-semibold tracking-tight text-foreground">
+                Dashboard Overview
+              </span>
             </div>
 
-            <div className="p-8 bg-[#0F1A24] border border-[#FFAB00]/10">
-              <h3 className="text-lg font-semibold mb-6">Recent Activity</h3>
-              <div className="space-y-6">
-                {[
-                  { user: "System", action: "Node Alpha Re-synced", time: "2m ago" },
-                  { user: "Crawler", action: "New dataset: product_data_v2", time: "15m ago" },
-                  { user: "Auth", action: "Successful login: admin@blaze.com", time: "1h ago" },
-                ].map((act, i) => (
-                  <div key={i} className="flex gap-4">
-                    <div className="w-8 h-8 rounded-full bg-[#FFAB00]/10 border border-[#FFAB00]/20 flex items-center justify-center">
-                      <Icon icon="solar:user-linear" className="w-4 h-4 text-[#FFAB00]" />
+            <div className="flex items-center gap-4">
+              <Badge variant="secondary" className="flex items-center gap-1.5 bg-green-500/10 hover:bg-green-500/10 text-green-600 dark:text-green-400 border border-green-500/20 text-[10px] px-2.5 py-0.5 rounded-full font-mono uppercase tracking-wider">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                Network Healthy
+              </Badge>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="h-9 w-9 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted/40"
+                title="Toggle Theme"
+              >
+                {resolvedTheme === "dark" ? (
+                  <Icon icon="solar:sun-linear" className="w-4 h-4" />
+                ) : (
+                  <Icon icon="solar:moon-linear" className="w-4 h-4" />
+                )}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </div>
+          </header>
+
+          <main className="p-6 md:p-8 space-y-8 max-w-7xl w-full mx-auto flex-1">
+            {/* stats card row */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                { label: "Active Nodes", value: "12", icon: "solar:server-linear", desc: "Running worldwide" },
+                { label: "Pages Scraped", value: "1.2M", icon: "solar:document-linear", desc: "+12.4% this week" },
+                { label: "Success Rate", value: "99.9%", icon: "solar:check-circle-linear", desc: "Live parsed payload" },
+                { label: "Data Volume", value: "4.2 TB", icon: "solar:database-linear", desc: "Distributed storage" },
+              ].map((stat, idx) => (
+                <Card key={idx} className="border border-border/60 bg-card/40 backdrop-blur-sm shadow-xs hover:border-foreground/20 hover:shadow-md transition-all duration-300">
+                  <CardHeader className="flex flex-row items-center justify-between pb-2 space-y-0">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                      {stat.label}
+                    </span>
+                    <div className="p-2 border border-border/40 bg-muted/20 rounded-md">
+                      <Icon icon={stat.icon} className="w-4 h-4 text-foreground" />
                     </div>
-                    <div>
-                      <p className="text-xs font-medium">{act.action}</p>
-                      <p className="text-[10px] text-orange-50/40 mt-1">{act.time} • {act.user}</p>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold tracking-tight mb-1">{stat.value}</div>
+                    <span className="text-[10px] text-muted-foreground font-medium">
+                      {stat.desc}
+                    </span>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Performance charts & Logs row */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Graphic Mock Chart */}
+              <Card className="lg:col-span-2 border border-border/60 bg-card/30 backdrop-blur-sm shadow-xs">
+                <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-border/20">
+                  <div>
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
+                      Crawl Performance
+                    </CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground font-sans">
+                      Continuous real-time payload synchronizations
+                    </CardDescription>
+                  </div>
+                  <Badge variant="outline" className="font-mono text-[9px] uppercase px-2 py-0.5 tracking-wider">
+                    24h Live Stream
+                  </Badge>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div className="h-64 flex flex-col justify-between relative">
+                    {/* SVG Line Chart */}
+                    <div className="absolute inset-0 z-0">
+                      <svg className="w-full h-full text-foreground/90" viewBox="0 0 500 200" preserveAspectRatio="none" fill="none" stroke="currentColor">
+                        <defs>
+                          <linearGradient id="chart-area-grad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="var(--foreground)" stopOpacity="0.08" />
+                            <stop offset="100%" stopColor="var(--foreground)" stopOpacity="0.0" />
+                          </linearGradient>
+                        </defs>
+                        {/* Area */}
+                        <path d="M0,160 C80,140 120,40 200,90 C280,140 320,60 400,30 C450,15 480,85 500,60 L500,200 L0,200 Z" fill="url(#chart-area-grad)" />
+                        
+                        {/* Horizontal Grid guidelines */}
+                        <line x1="0" y1="50" x2="500" y2="50" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1" />
+                        <line x1="0" y1="100" x2="500" y2="100" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1" />
+                        <line x1="0" y1="150" x2="500" y2="150" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1" />
+                        
+                        {/* Path Line */}
+                        <path d="M0,160 C80,140 120,40 200,90 C280,140 320,60 400,30 C450,15 480,85 500,60" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+                        
+                        {/* Active points */}
+                        <circle cx="200" cy="90" r="4.5" className="fill-background stroke-foreground" strokeWidth="2" />
+                        <circle cx="400" cy="30" r="4.5" className="fill-background stroke-foreground" strokeWidth="2" />
+                      </svg>
+                    </div>
+
+                    <div className="flex-1" />
+
+                    {/* Chart axis label info */}
+                    <div className="flex justify-between items-center text-[9px] font-mono text-muted-foreground border-t border-border/20 pt-2 relative z-10">
+                      <span>06:00 AM</span>
+                      <span>12:00 PM</span>
+                      <span>06:00 PM</span>
+                      <span>12:00 AM</span>
+                      <span>Live Now</span>
                     </div>
                   </div>
-                ))}
-              </div>
+                </CardContent>
+              </Card>
+
+              {/* Logs card */}
+              <Card className="border border-border/60 bg-card/30 backdrop-blur-sm shadow-xs flex flex-col">
+                <CardHeader className="pb-4 border-b border-border/20">
+                  <CardTitle className="text-sm font-bold uppercase tracking-wider text-foreground">
+                    System Activity Log
+                  </CardTitle>
+                  <CardDescription className="text-xs text-muted-foreground font-sans">
+                    Chronological events from parsing nodes
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6 flex-1 flex flex-col justify-between">
+                  <div className="space-y-6">
+                    {[
+                      { user: "System", action: "Node Alpha Re-synced", time: "2m ago", icon: "solar:server-linear" },
+                      { user: "Crawler", action: "New dataset: product_data_v2", time: "15m ago", icon: "solar:document-linear" },
+                      { user: "Auth", action: "Successful verification login", time: "1h ago", icon: "solar:shield-check-linear" },
+                    ].map((act, i) => (
+                      <div key={i} className="flex gap-4 items-start">
+                        <div className="w-8 h-8 rounded-md border border-border/40 bg-muted/30 flex items-center justify-center shrink-0">
+                          <Icon icon={act.icon} className="w-4 h-4 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-foreground truncate">{act.action}</p>
+                          <span className="text-[10px] text-muted-foreground font-medium block mt-0.5">
+                            {act.time} • {act.user}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-8 pt-4 border-t border-border/20 flex items-center justify-between text-[10px] font-mono text-muted-foreground">
+                    <span>STATUS: ALL NODES OK</span>
+                    <span className="flex items-center gap-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                      100% SECURE
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-          </div>
-        </div>
-      </main>
-    </div>
+          </main>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   )
 }

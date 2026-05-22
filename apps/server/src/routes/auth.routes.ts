@@ -4,6 +4,8 @@ import { pool } from "../db/pg.js"
 import { sendMagicLink } from "../utils/mailer.js"
 import jwt from "jsonwebtoken"
 
+import { authMiddleware } from "../middlewares/auth.middleware.js"
+
 const router: Router = Router()
 const JWT_SECRET = process.env.JWT_SECRET || "supersecret"
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000"
@@ -72,6 +74,12 @@ router.get("/verify", async (req, res) => {
     console.error(err)
     res.status(500).json({ error: "Verification failed" })
   }
+})
+
+// Get currently authenticated user profile
+router.get("/me", authMiddleware, (req, res) => {
+  const user = (req as any).user
+  res.json({ email: user.email })
 })
 
 export default router

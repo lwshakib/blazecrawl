@@ -1,227 +1,61 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useState } from "react"
 import { gsap } from "gsap"
 import { Icon } from "@iconify/react"
 import { Logo } from "@/components/Logo"
+import { useTheme } from "next-themes"
+import { Badge } from "@workspace/ui/components/badge"
+import { Button } from "@workspace/ui/components/button"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@workspace/ui/components/card"
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "@workspace/ui/components/accordion"
+import { Input } from "@workspace/ui/components/input"
 
 export default function Page() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [mounted, setMounted] = useState(false)
+  const { resolvedTheme, setTheme } = useTheme()
 
   useEffect(() => {
-    // --- WebGL Orange Laser Background ---
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const gl = canvas.getContext("webgl")
-
-    if (gl) {
-      const resizeCanvas = () => {
-        canvas.width = window.innerWidth
-        canvas.height = window.innerHeight
-        gl.viewport(0, 0, canvas.width, canvas.height)
-      }
-      window.addEventListener("resize", resizeCanvas)
-      resizeCanvas()
-
-      const vertexShaderSource = `
-        attribute vec2 position;
-        void main() {
-          gl_Position = vec4(position, 0.0, 1.0);
-        }
-      `
-
-      const fragmentShaderSource = `
-        precision highp float;
-        uniform vec2 u_resolution;
-        uniform float u_time;
-
-        float random(vec2 st) {
-          return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-        }
-
-        float noise(vec2 st) {
-          vec2 i = floor(st);
-          vec2 f = fract(st);
-          float a = random(i);
-          float b = random(i + vec2(1.0, 0.0));
-          float c = random(i + vec2(0.0, 1.0));
-          float d = random(i + vec2(1.0, 1.0));
-          vec2 u = f * f * (3.0 - 2.0 * f);
-          return mix(a, b, u.x) + (c - a) * u.y * (1.0 - u.x) + (d - b) * u.x * u.y;
-        }
-
-        float fbm(vec2 st) {
-          float value = 0.0;
-          float amplitude = 0.5;
-          for (int i = 0; i < 5; i++) {
-            value += amplitude * noise(st);
-            st *= 2.0;
-            amplitude *= 0.5;
-          }
-          return value;
-        }
-
-        void main() {
-          vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-          vec2 p = uv * 2.0 - 1.0;
-          p.x *= u_resolution.x / u_resolution.y;
-
-          float beamX = -0.1;
-          float dist = abs(p.x - beamX);
-          float core = 0.001 / dist;
-          core = smoothstep(0.0, 1.0, core);
-          float glow = 0.02 / (dist + 0.05);
-
-          vec2 smokeUV = vec2(p.x, p.y - u_time * 0.1);
-          float smokeNoise = fbm(smokeUV * 3.0 + vec2(u_time * 0.05, 0.0));
-          float smokeScatter = smoothstep(0.8, 0.0, dist);
-          float smoke = smokeNoise * smokeScatter * 0.4;
-
-          float pulse = sin(u_time * 2.0) * 0.1 + 0.9;
-          vec3 beamColor = vec3(1.0, 0.67, 0.0);
-          vec3 smokeColor = vec3(0.8, 0.4, 0.0);
-          vec3 coreColor = vec3(1.0, 1.0, 1.0);
-
-          vec3 finalColor = core * coreColor + glow * beamColor * pulse + smoke * smokeColor;
-          float edge = smoothstep(1.0, 0.4, abs(p.x)) * smoothstep(1.0, 0.2, abs(p.y));
-
-          gl_FragColor = vec4(finalColor * edge, 1.0);
-        }
-      `
-
-      const compileShader = (gl: WebGLRenderingContext, source: string, type: number) => {
-        const shader = gl.createShader(type)
-        if (!shader) return null
-        gl.shaderSource(shader, source)
-        gl.compileShader(shader)
-        return shader
-      }
-
-      const vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER)
-      const fragmentShader = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER)
-
-      if (vertexShader && fragmentShader) {
-        const program = gl.createProgram()
-        if (program) {
-          gl.attachShader(program, vertexShader)
-          gl.attachShader(program, fragmentShader)
-          gl.linkProgram(program)
-
-          const positionBuffer = gl.createBuffer()
-          gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
-          gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Float32Array([-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]),
-            gl.STATIC_DRAW
-          )
-
-          const positionLocation = gl.getAttribLocation(program, "position")
-          gl.enableVertexAttribArray(positionLocation)
-          gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0)
-
-          gl.useProgram(program)
-
-          const timeLocation = gl.getUniformLocation(program, "u_time")
-          const resolutionLocation = gl.getUniformLocation(program, "u_resolution")
-
-          let startTime = performance.now()
-          const render = () => {
-            const currentTime = performance.now()
-            gl.uniform1f(timeLocation, (currentTime - startTime) / 1000)
-            gl.uniform2f(resolutionLocation, canvas.width, canvas.height)
-            gl.drawArrays(gl.TRIANGLES, 0, 6)
-            requestAnimationFrame(render)
-          }
-          render()
-        }
-      }
-
-      return () => {
-        window.removeEventListener("resize", resizeCanvas)
-      }
-    }
+    setMounted(true)
   }, [])
 
   useEffect(() => {
-    // --- GSAP Animations Boot Sequence ---
-    gsap.set("#bg-orange-bottom", { xPercent: -100, yPercent: 100 })
-    gsap.set("#bg-darkorange-bottom", { xPercent: -100, yPercent: 100 })
-    gsap.set("#bg-orange-topleft", { xPercent: -100 })
+    // --- GSAP Entrance Animations ---
+    gsap.set("#top-accent", { opacity: 0, y: -10 })
+    gsap.set("#title-text", { opacity: 0, y: 15 })
+    gsap.set("#hero-desc", { opacity: 0, y: 15 })
+    gsap.set("#hero-buttons", { opacity: 0, y: 15 })
+    gsap.set("#hero-preview", { opacity: 0, y: 20 })
 
-    gsap.set("#hud-elements > div, #frame-container > div", { opacity: 0 })
-    gsap.set("#top-accent", { opacity: 0, y: -20 })
-    gsap.set("#pre-title", { opacity: 0, letterSpacing: "0.5em" })
-    gsap.set("#title-text", { opacity: 0, scale: 1.1, filter: "blur(10px)" })
+    const tl = gsap.timeline({ defaults: { ease: "power2.out", duration: 0.6 } })
 
-    const tl = gsap.timeline({ defaults: { ease: "power3.out" } })
+    tl.to("#top-accent", { opacity: 1, y: 0 })
+      .to("#title-text", { opacity: 1, y: 0 }, "-=0.4")
+      .to("#hero-desc", { opacity: 1, y: 0 }, "-=0.4")
+      .to("#hero-buttons", { opacity: 1, y: 0 }, "-=0.4")
+      .to("#hero-preview", { opacity: 1, y: 0, duration: 0.8 }, "-=0.4")
 
-    tl.to("#bg-orange-topleft", { xPercent: 0, duration: 1.2 })
-      .to("#bg-orange-bottom", { xPercent: 0, yPercent: 0, duration: 1.5 }, "-=1.0")
-      .to("#bg-darkorange-bottom", { xPercent: 0, yPercent: 0, duration: 1.5 }, "-=1.2")
-      .to("#frame-container > div", {
-        opacity: 1,
-        duration: 1,
-        stagger: 0.1,
-        ease: "power2.inOut",
-      }, "-=1.0")
-      .to("#hud-elements > div", {
-        opacity: 1,
-        duration: 0.1,
-        stagger: { each: 0.05, from: "random" as any },
-      }, "-=0.5")
-      .to("#hud-elements > div", {
-        opacity: 0.5,
-        duration: 0.05,
-        yoyo: true,
-        repeat: 3,
-        stagger: { each: 0.02, from: "random" as any },
-      }, "-=0.2")
-      .to("#top-accent", {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-      }, "-=0.2")
-      .to("#pre-title", {
-        opacity: 1,
-        letterSpacing: "0.1em",
-        duration: 1,
-      }, "-=0.4")
-      .to("#title-text", {
-        opacity: 1,
-        scale: 1,
-        filter: "blur(0px)",
-        duration: 1.5,
-        ease: "expo.out",
-      }, "-=0.2")
-
-    // --- Interactive Flashlight Cards ---
-    const glowCards = document.querySelectorAll(".glow-card")
-    glowCards.forEach((card) => {
-      const handleMouseMove = (e: Event) => {
-        const mouseEvent = e as MouseEvent
-        const rect = (card as HTMLElement).getBoundingClientRect()
-        const x = mouseEvent.clientX - rect.left
-        const y = mouseEvent.clientY - rect.top
-        ;(card as HTMLElement).style.setProperty("--mouse-x", `${x}px`)
-        ;(card as HTMLElement).style.setProperty("--mouse-y", `${y}px`)
-      }
-      card.addEventListener("mousemove", handleMouseMove)
-    })
-
-    // --- Scroll Reveal Animations ---
+    // --- Intersection Observer for Scroll Reveals ---
     const observerOptions = {
-      threshold: 0.1,
+      threshold: 0.05,
       rootMargin: "0px 0px -50px 0px",
     }
 
     const revealObserver = new IntersectionObserver((entries) => {
-      let delay = 0
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          setTimeout(() => {
-            entry.target.classList.add("active")
-          }, delay)
-          delay += 100
+          entry.target.classList.add("active")
           revealObserver.unobserve(entry.target)
         }
       })
@@ -237,554 +71,494 @@ export default function Page() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#FF6D00]/30 selection:text-white relative overflow-x-hidden font-jakarta">
+    <div className="min-h-screen bg-background text-foreground selection:bg-foreground selection:text-background relative overflow-x-hidden font-sans">
       <style jsx global>{`
-        body {
-          background-color: #000000;
-          color: #ffffff;
-        }
-        .font-rajdhani {
-          font-family: var(--font-rajdhani), sans-serif;
-        }
-        .font-mono {
-          font-family: var(--font-jetbrains-mono), monospace;
-        }
-        .font-jakarta {
-          font-family: var(--font-plus-jakarta-sans), sans-serif;
-        }
-        .font-geist {
-          font-family: var(--font-sans), sans-serif;
-        }
-        .text-metallic {
-          background: linear-gradient(180deg, #ffffff 0%, #FFD54F 45%, #000000 49%, #000000 51%, #FF6D00 55%, #FFAB00 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          -webkit-text-stroke: 1px rgba(255, 171, 0, 0.4);
-          filter: drop-shadow(0px 8px 16px rgba(0,0,0,0.9)) drop-shadow(0px 0px 20px rgba(255, 171, 0, 0.15));
-        }
         ::-webkit-scrollbar {
-          width: 4px;
+          width: 6px;
+          height: 6px;
         }
         ::-webkit-scrollbar-track {
-          background: #000000;
+          background: transparent;
         }
         ::-webkit-scrollbar-thumb {
-          background: #FFAB00;
-          opacity: 0.5;
+          background: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
+          border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: color-mix(in oklch, var(--muted-foreground) 45%, transparent);
         }
         .reveal {
           opacity: 0;
-          transform: translateY(30px);
-          filter: blur(10px);
-          transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
-                      transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
-                      filter 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
-          will-change: opacity, transform, filter;
+          transform: translateY(15px);
+          transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                      transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+          will-change: opacity, transform;
         }
         .reveal.active {
           opacity: 1;
           transform: translateY(0);
-          filter: blur(0px);
-        }
-        .glow-card {
-          position: relative;
-        }
-        .glow-card::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(800px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255, 171, 0, 0.08), transparent 40%);
-          z-index: 0;
-          pointer-events: none;
-          transition: opacity 0.3s ease;
-          opacity: 0;
-          border-radius: inherit;
-        }
-        .glow-card::after {
-          content: "";
-          position: absolute;
-          inset: -1px;
-          border-radius: inherit;
-          background: radial-gradient(400px circle at var(--mouse-x, -1000px) var(--mouse-y, -1000px), rgba(255, 171, 0, 0.8), transparent 40%);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          padding: 1px;
-          z-index: 1;
-          pointer-events: none;
-          transition: opacity 0.3s ease;
-          opacity: 0;
-        }
-        .glow-card:hover::before,
-        .glow-card:hover::after {
-          opacity: 1;
         }
       `}</style>
 
-      {/* Fixed Backgrounds */}
-      <canvas ref={canvasRef} className="fixed inset-0 z-0 pointer-events-none w-full h-full opacity-60" />
-
-      {/* Background Noodles/Beams */}
-      <svg className="fixed inset-0 w-full h-full pointer-events-none z-[1] opacity-70" viewBox="0 0 100 100" preserveAspectRatio="none">
-        <defs>
-          <filter id="noodle-glow" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="0.15" result="blur" />
-            <feComposite in="SourceGraphic" in2="blur" operator="over" />
-          </filter>
-        </defs>
-        <path d="M 15,-10 C 15,30 85,70 85,110" fill="none" stroke="rgba(255,171,0,0.06)" strokeWidth="0.1" />
-        <path d="M 15,-10 C 15,30 85,70 85,110" fill="none" stroke="#FF6D00" strokeWidth="0.2" filter="url(#noodle-glow)" strokeDasharray="10 150">
-          <animate attributeName="stroke-dashoffset" from="150" to="0" dur="6s" repeatCount="indefinite" />
-        </path>
-        <path d="M 85,-10 C 85,40 20,60 20,110" fill="none" stroke="rgba(255,171,0,0.06)" strokeWidth="0.1" />
-        <path d="M 85,-10 C 85,40 20,60 20,110" fill="none" stroke="#FFAB00" strokeWidth="0.2" filter="url(#noodle-glow)" strokeDasharray="15 150">
-          <animate attributeName="stroke-dashoffset" from="150" to="0" dur="8.5s" repeatCount="indefinite" />
-        </path>
-        <path d="M 50,-10 C 65,30 35,60 50,110" fill="none" stroke="rgba(255,171,0,0.06)" strokeWidth="0.1" />
-        <path d="M 50,-10 C 65,30 35,60 50,110" fill="none" stroke="#E65100" strokeWidth="0.15" filter="url(#noodle-glow)" strokeDasharray="5 100">
-          <animate attributeName="stroke-dashoffset" from="100" to="0" dur="4.2s" repeatCount="indefinite" />
-        </path>
-      </svg>
-
-      <div className="fixed inset-0 z-[1] pointer-events-none bg-cover bg-center mix-blend-luminosity opacity-10 blur-sm" style={{ backgroundImage: "url('https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4b853ee7-0035-47f0-a177-608832b1214c_3840w.webp')" }} />
-
-      <div className="fixed inset-0 z-[1] pointer-events-none opacity-20 mix-blend-overlay" style={{ backgroundImage: "url('data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.8%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E')" }} />
-
-      <div className="fixed inset-0 z-[1] pointer-events-none mix-blend-overlay opacity-30" style={{ backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255, 171, 0, 0.1) 2px, rgba(255, 171, 0, 0.1) 4px)", backgroundSize: "100% 4px" }} />
-
-      <div className="fixed inset-0 z-[1] pointer-events-none" style={{ background: "radial-gradient(circle at center, transparent 0%, #000000 90%)" }} />
-
-      {/* Fixed HUD Elements */}
-      <div id="bg-orange-bottom" className="fixed bottom-0 left-0 w-3/4 h-[75vh] bg-[#FF6D00] z-[1] opacity-10 pointer-events-none" style={{ clipPath: "polygon(0 100%, 0 20%, 80% 100%)" }} />
-      <div id="bg-darkorange-bottom" className="fixed bottom-0 left-0 w-2/3 h-[66vh] bg-[#E65100] z-[1] opacity-15 pointer-events-none" style={{ clipPath: "polygon(0 100%, 0 40%, 60% 100%)" }} />
-      <div id="bg-orange-topleft" className="fixed top-0 left-0 w-64 h-full bg-[#FF6D00] z-[1] opacity-5 pointer-events-none" style={{ clipPath: "polygon(0 0, 100% 0, 40% 100%, 0 100%)" }} />
+      {/* Clean Minimal Background Gradients */}
+      <div className="fixed inset-0 z-0 bg-background" />
+      <div className="fixed inset-0 z-0 pointer-events-none opacity-50 dark:opacity-80" 
+           style={{
+             background: resolvedTheme === "dark" 
+               ? "radial-gradient(circle at top, rgba(255,255,255,0.03) 0%, transparent 60%)"
+               : "radial-gradient(circle at top, rgba(0,0,0,0.015) 0%, transparent 60%)"
+           }} 
+      />
 
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-[40] bg-[#000000]/80 backdrop-blur-md border-b border-[#FFAB00]/10">
+      <nav className="fixed top-0 left-0 right-0 z-[40] bg-background/80 backdrop-blur-md border-b border-border/40">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Logo className="w-8 h-8 text-[#FFAB00]" />
-            <span className="text-xl font-semibold text-white font-jakarta">BlazeCrawl</span>
+          <div className="flex items-center gap-2.5">
+            <Logo className="w-6 h-6 text-foreground" />
+            <span className="text-lg font-semibold text-foreground tracking-tight font-sans">BlazeCrawl</span>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-mono text-orange-50">
-            <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Features</a>
-            <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Developer</a>
-            <a href="#" className="hover:text-[#FFAB00] transition-colors font-geist">Platform</a>
-            <a href="#" className="hover:text-[#FFAB00] transition-colors flex items-center gap-1 font-geist">
-              Docs <span className="text-[#FF6D00] mb-1 font-geist">[12]</span>
-            </a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
+            <a href="#features" className="hover:text-foreground transition-colors font-sans font-medium">Features</a>
+            <a href="#developers" className="hover:text-foreground transition-colors font-sans font-medium">Developers</a>
+            <a href="#faq" className="hover:text-foreground transition-colors font-sans font-medium">FAQ</a>
+            <a href="#docs" className="hover:text-foreground transition-colors font-sans font-medium">Docs</a>
           </div>
 
           <div className="flex items-center gap-4">
-            <a href="/login" className="text-sm font-medium hover:text-[#FFAB00] hidden sm:block text-orange-50 font-jakarta">Login</a>
-            <a href="/login" className="group relative flex items-center justify-center px-6 py-2.5 cursor-pointer overflow-hidden bg-[#1A2A3A]/40 border border-white/5 backdrop-blur-sm">
-              <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-[#FFAB00]" />
-              <span className="relative z-10 text-white text-sm font-medium flex items-center gap-2 transition-all font-jakarta">
-                Get Started <Icon icon="solar:stars-linear" className="w-4 h-4 opacity-70" />
-              </span>
+            {/* Open Source GitHub Icon Link */}
+            <a
+              href="https://github.com/lwshakib/blazecrawl"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-muted-foreground hover:text-foreground transition-colors p-2 flex items-center justify-center rounded-md hover:bg-muted/40"
+              title="GitHub Repository (Open Source)"
+            >
+              <Icon icon="mdi:github" className="w-5 h-5" />
             </a>
+
+            {mounted && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+                className="h-9 w-9 text-muted-foreground hover:text-foreground transition-colors hover:bg-muted/40"
+                title="Toggle Theme"
+              >
+                {resolvedTheme === "dark" ? (
+                  <Icon icon="solar:sun-linear" className="w-4 h-4" />
+                ) : (
+                  <Icon icon="solar:moon-linear" className="w-4 h-4" />
+                )}
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            )}
+
+            <a href="/login" className="text-sm font-medium hover:text-foreground text-muted-foreground transition-colors font-sans hidden sm:block">Login</a>
+            
+            <Button asChild variant="default" className="text-sm font-medium font-sans">
+              <a href="/login">
+                Get Started
+              </a>
+            </Button>
           </div>
         </div>
       </nav>
 
       <main className="pt-32 relative z-10" id="main-content">
         {/* Hero Section */}
-        <section className="min-h-[80vh] flex flex-col lg:flex-row max-w-7xl mr-auto ml-auto pr-6 pl-6 relative items-center justify-center">
-          <div className="lg:w-1/2 z-10 lg:pt-0 flex flex-col w-full pt-12 items-start">
+        <section className="flex flex-col lg:flex-row max-w-7xl mx-auto px-6 items-center justify-center gap-16 pt-16 pb-24">
+          <div className="lg:w-1/2 flex flex-col items-start w-full">
             <div className="flex flex-col items-start mb-6" id="top-accent">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 backdrop-blur-sm mb-4">
-                <span className="text-xs font-mono text-white uppercase tracking-widest bg-[#E65100]/50 px-2 py-0.5 border border-[#E65100]/80 font-geist">Sys_Update</span>
-                <span className="text-xs font-mono text-[#FFD54F] tracking-widest uppercase font-geist">v2.1 active</span>
-              </div>
-              <div className="flex gap-0.5 h-1 w-24 opacity-80">
-                <div className="w-1 bg-[#FFAB00]" />
-                <div className="w-2 bg-[#FFAB00]" />
-                <div className="w-0.5 bg-[#FFAB00]" />
-                <div className="w-3 bg-[#FFAB00]" />
-                <div className="w-1 bg-[#FFAB00]" />
-              </div>
+              <Badge variant="secondary" className="font-mono text-[10px] tracking-wider px-3 py-1 rounded-full uppercase">
+                Open Source Protocol
+              </Badge>
             </div>
 
-            <div className="text-[#FFAB00]/80 font-medium text-sm mb-4 font-jakarta" id="pre-title">Fast Web Scraping</div>
-
-            <h1 className="text-5xl sm:text-6xl lg:text-[5.5rem] leading-[1.1] mb-6 text-metallic font-jakarta font-medium" id="title-text">
-              The Ultimate<br />Web Crawler
+            <h1 className="text-5xl sm:text-6xl lg:text-7xl leading-[1.1] mb-6 text-foreground font-bold font-sans tracking-tight" id="title-text">
+              High-performance<br />web scraping.
             </h1>
 
-            <p className="leading-relaxed text-base font-mono max-w-xl mb-10 text-orange-50 font-geist">
-              BlazeCrawl is the paramount high-performance scraping terminal, utilized to intercept, transmit, and decode web data into actionable intelligence.
+            <p className="leading-relaxed text-base max-w-lg mb-10 text-muted-foreground font-sans" id="hero-desc">
+              BlazeCrawl is a clean, minimal scraping terminal built to extract, clean, and synchronize web data into structured Markdown or JSON instantly.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
-              <a href="/login" className="group relative flex items-center justify-center px-8 py-3.5 w-full sm:w-auto cursor-pointer overflow-hidden bg-[#FFAB00] hover:bg-white transition-colors">
-                <span className="relative z-10 text-black font-semibold text-sm flex items-center gap-2 transition-all font-jakarta">
-                  Start Crawling <Icon icon="solar:alt-arrow-right-linear" className="w-4 h-4" />
-                </span>
-              </a>
-              <a href="#" className="w-full sm:w-auto bg-[#000000]/50 backdrop-blur-sm border border-[#FFAB00]/20 px-8 py-3.5 text-sm font-medium flex justify-center items-center hover:text-[#FFAB00] hover:border-[#FFAB00]/40 transition-colors text-orange-50 font-jakarta">Try Free</a>
+            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto" id="hero-buttons">
+              <Button asChild className="w-full sm:w-auto h-12 px-8 font-medium font-sans">
+                <a href="/login">
+                  Start Crawling <Icon icon="solar:alt-arrow-right-linear" className="w-4 h-4 ml-2" />
+                </a>
+              </Button>
+              <Button asChild variant="outline" className="w-full sm:w-auto h-12 px-8 font-medium font-sans bg-transparent">
+                <a href="#features">
+                  Learn More
+                </a>
+              </Button>
             </div>
           </div>
 
-          <div className="lg:w-1/2 aspect-square max-w-[500px] lg:max-w-[700px] mx-auto lg:mt-0 flex pointer-events-none w-full mt-16 relative items-center justify-center">
-            <div className="absolute w-[120%] h-[120%] border border-[#FFAB00]/10 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
-            <div className="absolute w-[90%] h-[90%] border border-[#FFAB00]/20 rounded-full top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-dashed" />
-            <div className="relative w-24 h-24 border-2 border-[#FFAB00] rounded-full flex items-center justify-center bg-[#0F1A24]">
-              <div className="absolute inset-0 bg-[#FFAB00] rounded-full blur-[30px] opacity-20" />
-              <Logo className="w-12 h-12 text-[#FFAB00] relative z-10 drop-shadow-[0_0_15px_#FFAB00]" />
-            </div>
-            <div className="absolute top-[20%] right-[30%] border border-[#FFAB00]/30 bg-[#0F1A24] p-3 shadow-[0_0_15px_rgba(255,171,0,0.1)]">
-              <div className="w-4 h-4 bg-[#E65100]/80 rounded-sm shadow-[0_0_10px_#E65100]" />
-              <div className="text-[10px] font-mono text-[#FFAB00] mt-2 font-geist">Node Alpha</div>
-            </div>
-            <div className="absolute bottom-[30%] right-[10%] border border-[#FFAB00]/30 bg-[#0F1A24] p-3 shadow-[0_0_15px_rgba(255,171,0,0.1)]">
-              <Icon icon="solar:layers-linear" className="w-6 h-6 text-[#FFAB00]" />
-              <div className="text-[10px] font-mono text-[#FFAB00] mt-2 uppercase font-geist">Level_10</div>
-            </div>
-            <div className="absolute top-[30%] left-[15%] border border-[#FFAB00]/30 bg-[#0F1A24] p-3 rounded-full">
-              <Icon icon="solar:globus-linear" className="w-5 h-5 text-[#FFAB00]" />
-            </div>
-            <div className="absolute bottom-[10%] right-[15%] bg-[#0F1A24]/90 backdrop-blur-xl border border-[#FFAB00]/30 p-4 flex items-center gap-4 w-72 shadow-2xl">
-              <div className="w-10 h-10 bg-[#000000] border border-[#FFAB00]/20 flex items-center justify-center">
-                <div className="w-full h-[2px] bg-gradient-to-r from-[#E65100] via-[#FFAB00] to-[#FFAB00] mx-2" />
+          <div className="lg:w-1/2 w-full flex justify-center lg:justify-end" id="hero-preview">
+            {/* Terminal Card Mockup */}
+            <Card className="w-full max-w-lg border border-border bg-card/60 backdrop-blur-sm shadow-sm rounded-lg overflow-hidden flex flex-col font-mono text-xs select-none">
+              {/* Window Header */}
+              <div className="bg-muted/40 px-4 py-3 border-b border-border/60 flex items-center justify-between">
+                <div className="flex gap-2">
+                  <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-border" />
+                </div>
+                <span className="text-[10px] text-muted-foreground font-sans font-medium">terminal.sh</span>
+                <div className="w-12" />
               </div>
-              <div>
-                <p className="text-sm text-[#FFAB00] font-semibold font-jakarta">Blaze Crawler</p>
-                <p className="text-xs mt-1 text-orange-50 font-jakarta">Status: Syncing</p>
+              
+              {/* Terminal Content */}
+              <div className="p-6 space-y-4 text-foreground/95 leading-relaxed overflow-x-auto min-h-[300px]">
+                <div>
+                  <span className="text-muted-foreground font-medium">$</span> blazecrawl crawl --url <span className="text-foreground font-medium">"https://example.com/blog"</span> --format <span className="text-foreground font-medium">"json"</span>
+                </div>
+                
+                <div className="text-muted-foreground">
+                  &gt; Launching headless crawler cluster... [OK]<br />
+                  &gt; Initializing proxy network rotation... [OK]<br />
+                  &gt; Intercepting HTTP payload from target domain...
+                </div>
+
+                <div className="border-t border-border/40 pt-3 text-[11px]">
+                  <span className="text-muted-foreground">{"{"}</span><br />
+                  <div className="pl-4">
+                    <span className="text-muted-foreground">"status"</span>: <span className="text-foreground font-semibold">"active_sync"</span>,<br />
+                    <span className="text-muted-foreground">"integrity"</span>: <span className="text-foreground font-semibold">"99.9%"</span>,<br />
+                    <span className="text-muted-foreground">"extracted_payload"</span>: <span className="text-muted-foreground">{"["}</span><br />
+                    <div className="pl-4">
+                      <span className="text-muted-foreground">{"{"}</span> <span className="text-muted-foreground">"title"</span>: <span className="text-foreground font-medium">"BlazeCrawl Release"</span>, <span className="text-muted-foreground">"speed"</span>: <span className="text-foreground">"1.2s"</span> <span className="text-muted-foreground">{"}"}</span>,<br />
+                      <span className="text-muted-foreground">{"{"}</span> <span className="text-muted-foreground">"title"</span>: <span className="text-foreground font-medium">"Scale API Node"</span>, <span className="text-muted-foreground">"speed"</span>: <span className="text-foreground">"0.8s"</span> <span className="text-muted-foreground">{"}"}</span>
+                    </div>
+                    <span className="text-muted-foreground">{"]"}</span>
+                  </div>
+                  <span className="text-muted-foreground">{"}"}</span>
+                </div>
+
+                <div className="flex items-center gap-2 pt-2 text-[10px] text-muted-foreground">
+                  <div className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" />
+                  <span>Success: Payload synchronized to nodes</span>
+                </div>
               </div>
-            </div>
+            </Card>
           </div>
         </section>
 
         {/* Stats Section */}
-        <section className="bg-[#030303] mt-32 relative">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[100%] h-[1px] bg-gradient-to-r from-transparent via-[#FFAB00]/50 to-transparent pointer-events-none" />
-          <div className="max-w-7xl mx-auto px-6 pt-24 text-center relative z-10">
-            <div className="reveal inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-sm font-mono text-[#FFAB00] mb-8 font-geist">Global Stats</div>
-            <h2 className="reveal text-2xl sm:text-3xl lg:text-4xl text-white max-w-3xl mx-auto leading-tight mb-20 font-jakarta font-medium">
-              High-velocity extraction engine for the modern data architecture
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center border-t border-b border-[#FFAB00]/10 py-12">
-              <div className="reveal text-center md:text-left">
-                <p className="text-4xl mb-2 text-[#FFAB00] font-jakarta font-medium">12.5+ MM</p>
-                <p className="text-sm font-mono text-orange-50 font-geist">Pages Scraped</p>
-              </div>
-              <div className="reveal flex flex-wrap justify-center gap-8 items-center opacity-70 text-white font-mono text-base">
-                <span className="font-geist">Fast</span>
-                <span className="flex items-center gap-1 font-geist"><Icon icon="solar:infinity-linear" className="w-5 h-5" /> Scalable</span>
-                <span className="font-geist">Secure</span>
-              </div>
-              <div className="reveal text-center md:text-right">
-                <p className="text-4xl mb-2 text-[#FFAB00] font-jakarta font-medium">500+ TB</p>
-                <p className="text-sm font-mono text-orange-50 font-geist">Data Extracted</p>
-              </div>
+        <section className="bg-muted/30 border-y border-border py-16">
+          <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 items-center text-center">
+            <div className="reveal">
+              <p className="text-3xl font-bold font-sans text-foreground mb-1">12.5M+</p>
+              <p className="text-xs text-muted-foreground font-sans uppercase tracking-wider">Pages Scraped</p>
+            </div>
+            <div className="reveal flex justify-center gap-6 items-center text-muted-foreground text-sm font-sans font-medium">
+              <span>Fast</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-border" />
+              <span>Scalable</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-border" />
+              <span>Secure</span>
+            </div>
+            <div className="reveal">
+              <p className="text-3xl font-bold font-sans text-foreground mb-1">500TB+</p>
+              <p className="text-xs text-muted-foreground font-sans uppercase tracking-wider">Data Extracted</p>
             </div>
           </div>
         </section>
 
-        {/* Features Bento Box */}
-        <section className="max-w-7xl mx-auto px-6 py-32">
-          <div className="reveal mb-12 border-l-[6px] border-[#FFAB00] pl-6 shadow-[inset_2px_0_10px_rgba(255,171,0,0.1)]">
-            <div className="text-sm font-medium text-[#FFAB00] mb-4 font-jakarta">Features</div>
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-              <h2 className="text-3xl sm:text-4xl max-w-md leading-tight font-jakarta font-medium">Multi-Format Output</h2>
-              <p className="text-sm font-mono max-w-sm md:text-right text-orange-50 font-geist">From URL to Markdown, Summary, Links, HTML, Screenshot, and JSON.</p>
-            </div>
+        {/* Features Bento Grid */}
+        <section className="max-w-7xl mx-auto px-6 py-32" id="features">
+          <div className="reveal mb-16 max-w-xl">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 font-sans">Features</div>
+            <h2 className="text-3xl sm:text-4xl leading-tight font-sans font-bold text-foreground">Clean, high-performance capabilities</h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            <div className="md:col-span-12 lg:col-span-5 p-8 relative overflow-hidden group glow-card reveal" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
-              <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF6D00]/5 blur-[80px] group-hover:bg-[#FF6D00]/10 transition-colors" />
-              <div className="relative z-10">
-                <h3 className="text-xl tracking-widest mb-2 uppercase text-white font-jakarta font-medium">Smart Extraction</h3>
-                <p className="text-xs font-mono uppercase mb-12 max-w-xs leading-relaxed text-orange-50 font-geist">AI-powered summary and branding identification from any source.</p>
-                <div className="w-full max-w-[280px] mx-auto relative border border-[#FFAB00]/20 p-4 bg-[#000000]">
-                  <div className="flex flex-col items-center gap-2 relative z-10">
-                    <div className="bg-[#0F1A24] border border-[#FFAB00]/20 p-4 w-full flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 border border-[#FFAB00]/30 flex items-center justify-center"><Icon icon="solar:document-linear" className="w-4 h-4 text-[#FFAB00]" /></div>
-                        <span className="font-mono font-medium text-sm text-white font-geist">MD</span>
-                      </div>
-                      <span className="font-mono text-orange-50 font-geist">READY</span>
-                    </div>
-                    <div className="w-10 h-10 border border-[#FFAB00] bg-[#000000] flex items-center justify-center -my-4 relative z-10 shadow-[0_0_10px_rgba(255,171,0,0.2)]">
-                      <Icon icon="solar:transfer-vertical-linear" className="w-5 h-5 text-[#FFAB00]" />
-                    </div>
-                    <div className="bg-[#0F1A24] border border-[#FFAB00]/20 p-4 w-full flex items-center justify-between opacity-50">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 border border-[#FF6D00]/50 flex items-center justify-center"><Icon icon="solar:code-linear" className="w-4 h-4 text-[#FF6D00]" /></div>
-                        <span className="font-mono font-medium text-sm text-white font-geist">JSON</span>
-                      </div>
-                      <span className="font-mono text-orange-50 font-geist">QUEUE</span>
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Feature 1 */}
+            <Card className="p-8 border border-border bg-card/40 hover:border-foreground/20 hover:shadow-sm transition-all duration-300 rounded-lg reveal flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="w-10 h-10 border border-border flex items-center justify-center bg-background rounded-md mb-6">
+                  <Icon icon="solar:document-linear" className="w-5 h-5 text-foreground" />
                 </div>
-                <div className="mt-12">
-                  <a href="#" className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-[#FFAB00] hover:text-white transition-colors font-geist">
-                    View_Documentation <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
-                  </a>
-                </div>
+                <h3 className="text-lg font-bold text-foreground font-sans mb-2">Smart Extraction</h3>
+                <p className="text-sm text-muted-foreground font-sans leading-relaxed">
+                  Generate optimized Markdown, summaries, links lists, or formatted JSON structures from any target site automatically.
+                </p>
               </div>
-            </div>
+            </Card>
 
-            <div className="md:col-span-12 lg:col-span-7 p-8 relative overflow-hidden group glow-card reveal" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
-              <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
-              <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-[#FF6D00]/5 blur-[80px] group-hover:bg-[#FF6D00]/10 transition-colors" />
-              <div className="relative z-10 h-full flex flex-col">
-                <div className="flex justify-between items-start mb-8">
-                  <div>
-                    <h3 className="text-xl tracking-widest mb-2 uppercase text-white font-jakarta font-medium">Real-Time Sync</h3>
-                    <p className="text-xs font-mono uppercase max-w-sm text-orange-50 font-geist">Multi-node synchronization for distributed crawling.</p>
-                  </div>
+            {/* Feature 2 */}
+            <Card className="p-8 border border-border bg-card/40 hover:border-foreground/20 hover:shadow-sm transition-all duration-300 rounded-lg reveal flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="w-10 h-10 border border-border flex items-center justify-center bg-background rounded-md mb-6">
+                  <Icon icon="solar:transfer-vertical-linear" className="w-5 h-5 text-foreground" />
                 </div>
-                <div className="flex-1 relative mt-auto pt-10 border-b border-[#FFAB00]/10 pb-4">
-                  <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none" viewBox="0 0 100 100">
-                    <path d="M0,80 Q20,60 40,70 T80,30 T100,10" fill="none" stroke="#FFAB00" strokeWidth="0.5" className="drop-shadow-[0_0_5px_rgba(255,171,0,0.5)]" />
-                    <path d="M0,80 Q20,60 40,70 T80,30 T100,10 L100,100 L0,100 Z" fill="url(#grad)" opacity="0.1" />
-                    <defs>
-                      <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="#FFAB00" />
-                        <stop offset="100%" stopColor="transparent" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div className="absolute top-[20%] left-[60%] flex flex-col items-center">
-                    <div className="bg-[#FFAB00] w-1.5 h-1.5 rounded-sm shadow-[0_0_5px_#FFAB00] mb-2" />
-                    <div className="bg-[#000000] border border-[#FFAB00]/30 p-2 text-center min-w-[120px]">
-                      <p className="text-xs font-mono uppercase text-white mb-1 font-geist">Blaze Node</p>
-                      <p className="text-xs font-mono text-[#FFAB00] font-geist">Active Sync</p>
-                    </div>
-                  </div>
-                </div>
+                <h3 className="text-lg font-bold text-foreground font-sans mb-2">Real-Time Sync</h3>
+                <p className="text-sm text-muted-foreground font-sans leading-relaxed">
+                  Distribute heavy crawling loads across multi-region server arrays with native, near-instant synchronization pipelines.
+                </p>
               </div>
-            </div>
+            </Card>
 
-            <div className="md:col-span-12 lg:col-span-7 p-8 relative overflow-hidden h-[350px] glow-card reveal" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
-              <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
-              <div className="absolute top-1/2 left-1/4 w-32 h-32 bg-[#FF6D00]/10 blur-[60px] rounded-full" />
-              <div className="relative z-10 flex flex-col h-full justify-between">
-                <div className="w-16 h-16 border-2 border-[#FFAB00] flex items-center justify-center bg-[#000000] shadow-[0_0_15px_rgba(255,171,0,0.2)] mb-8">
-                  <Icon icon="solar:global-linear" className="w-8 h-8 text-[#FFAB00]" />
+            {/* Feature 3 */}
+            <Card className="p-8 border border-border bg-card/40 hover:border-foreground/20 hover:shadow-sm transition-all duration-300 rounded-lg reveal flex flex-col justify-between h-[280px]">
+              <div>
+                <div className="w-10 h-10 border border-border flex items-center justify-center bg-background rounded-md mb-6">
+                  <Icon icon="solar:shield-keyhole-linear" className="w-5 h-5 text-foreground" />
                 </div>
-                <div>
-                  <h3 className="text-xl tracking-widest mb-2 uppercase text-white font-jakarta font-medium">Distributed Network</h3>
-                  <p className="text-xs font-mono uppercase text-orange-50 font-geist">Seamlessly scale across multiple global regions.</p>
-                </div>
+                <h3 className="text-lg font-bold text-foreground font-sans mb-2">Stealth Access</h3>
+                <p className="text-sm text-muted-foreground font-sans leading-relaxed">
+                  Automatic proxy rotations, fingerprint randomization, and header spoofing to bypass modern web scrap barrier systems.
+                </p>
               </div>
-            </div>
-
-            <div className="md:col-span-12 lg:col-span-5 p-8 relative overflow-hidden h-[350px] glow-card reveal" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "0 0 30px rgba(0,0,0,0.8), inset 0 0 20px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
-              <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
-              <div className="relative z-10 w-full md:w-2/3">
-                <h3 className="text-xl tracking-widest mb-2 uppercase text-white font-jakarta font-medium">Stealth Protocol</h3>
-                <p className="text-xs font-mono uppercase text-orange-50 font-geist">Advanced fingerprinting bypass and rotation.</p>
-              </div>
-              <div className="absolute -right-10 top-1/2 -translate-y-1/2 w-64 h-64 border border-[#FFAB00]/20 rounded-full flex items-center justify-center">
-                <div className="w-48 h-48 border border-dashed border-[#FFAB00]/30 rounded-full flex items-center justify-center rotate-45">
-                  <div className="w-32 h-32 border border-[#FFAB00]/20 rounded-full flex items-center justify-center">
-                    <div className="w-2 h-2 bg-[#E65100] rounded-sm shadow-[0_0_10px_#E65100]" />
-                  </div>
-                </div>
-              </div>
-            </div>
+            </Card>
           </div>
         </section>
 
-        {/* Keycard Section */}
-        <section className="max-w-7xl mx-auto px-6 py-16">
-          <div className="p-8 md:p-16 flex flex-col lg:flex-row items-center gap-16 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "inset 0 0 30px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
-            <div className="absolute inset-0 pointer-events-none opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
-            <div className="reveal w-full lg:w-1/2 relative z-10 border-l-[6px] border-[#FFAB00] pl-8">
-              <div className="text-sm font-mono text-[#FFAB00] mb-6 font-geist">Access Key</div>
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl mb-12 max-w-md leading-tight text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.2)] font-jakarta font-medium">Level 10 Crawler Identification</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-12">
-                <div>
-                  <div className="w-8 h-8 mb-4 border border-[#FFAB00]/40 flex items-center justify-center text-[#FFAB00]"><Icon icon="solar:shield-keyhole-linear" className="w-4 h-4" /></div>
-                  <p className="text-xs font-mono uppercase leading-relaxed text-orange-50 font-geist">Enterprise-grade security and encryption.</p>
-                </div>
-                <div>
-                  <div className="w-8 h-8 mb-4 border border-[#FFAB00]/40 flex items-center justify-center text-[#FFAB00]"><Icon icon="solar:bolt-linear" className="w-4 h-4" /></div>
-                  <p className="text-xs font-mono uppercase leading-relaxed text-orange-50 font-geist">Ultra-low latency data tunneling architecture.</p>
-                </div>
-              </div>
-              <a href="#" className="group relative flex items-center justify-center px-8 py-3 w-max cursor-pointer overflow-hidden bg-[#1A2A3A]/40 border border-white/5 backdrop-blur-sm shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
-                <div className="absolute left-0 top-0 bottom-0 w-[4px] bg-[#FFAB00] transition-all group-hover:w-[8px] group-hover:bg-white shadow-[0_0_10px_rgba(255,171,0,0.5)]" />
-                <div className="absolute inset-0 bg-gradient-to-r from-[#FFAB00]/0 via-[#FFAB00]/10 to-[#FFAB00]/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <span className="relative z-10 text-white font-mono text-xs tracking-widest uppercase flex items-center gap-2 group-hover:drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] font-geist">
-                  Get Started <Icon icon="solar:arrow-right-linear" className="w-4 h-4" />
-                </span>
-              </a>
+        {/* Access Key Section */}
+        <section className="max-w-7xl mx-auto px-6 py-16" id="developers">
+          <Card className="p-8 md:p-16 flex flex-col lg:flex-row items-center gap-16 bg-card/40 border border-border shadow-sm rounded-xl">
+            <div className="reveal w-full lg:w-1/2 relative z-10 flex flex-col items-start">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-4 font-sans">Developer Access</div>
+              <h2 className="text-3xl sm:text-4xl mb-6 leading-tight text-foreground font-sans font-bold">API Authorization Key</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-8 max-w-md">
+                Deploy and integrate with standard HTTP protocols. Standardize your crawling flows with direct authorization, secure signatures, and live dashboard monitoring.
+              </p>
+              <Button asChild variant="outline" className="font-sans font-medium bg-transparent">
+                <a href="/login">
+                  Get Key <Icon icon="solar:arrow-right-linear" className="w-4 h-4 ml-2" />
+                </a>
+              </Button>
             </div>
+            
             <div className="reveal w-full lg:w-1/2 flex justify-center lg:justify-end relative z-10">
-              <div className="w-[300px] h-[480px] bg-[#000000] border-2 border-[#FFAB00]/50 p-8 relative overflow-hidden shadow-[0_0_30px_rgba(255,171,0,0.2)] transform transition-transform hover:scale-105 duration-500">
-                <div className="flex justify-between items-start relative z-10 border-b border-[#FFAB00]/30 pb-4">
-                  <span className="text-[#FFAB00] text-[10px] font-mono uppercase tracking-widest font-geist">BLAZE_ID<br />0xBC-99</span>
-                  <Icon icon="solar:rss-linear" className="w-5 h-5 text-[#FFAB00] rotate-90" />
+              <div className="w-[300px] h-[400px] bg-card border border-border p-8 relative overflow-hidden shadow-sm rounded-lg flex flex-col justify-between text-foreground">
+                <div className="flex justify-between items-start border-b border-border/60 pb-4">
+                  <span className="text-[10px] font-mono tracking-wider text-muted-foreground">Access Key<br />ID: BC-9952</span>
+                  <Icon icon="solar:rss-linear" className="w-4 h-4 text-foreground rotate-90" />
                 </div>
-                <div className="mt-12 relative z-10">
-                  <h3 className="text-4xl tracking-widest uppercase text-white font-jakarta font-medium">Blaze</h3>
+                <div>
+                  <h3 className="text-3xl font-bold text-foreground font-sans tracking-tight">Blaze</h3>
+                  <div className="mt-6 border-l-2 border-foreground pl-4">
+                    <p className="text-[9px] font-mono tracking-wider text-muted-foreground uppercase">Authorization Level</p>
+                    <p className="text-xs font-mono text-foreground font-bold tracking-wider mt-0.5">Admin_Access</p>
+                  </div>
                 </div>
-                <div className="mt-8 border-l-[4px] border-[#E65100] pl-4 relative z-10">
-                  <p className="text-[10px] font-mono uppercase tracking-widest text-orange-50 font-geist">Authorization Level</p>
-                  <p className="text-xs font-mono text-[#E65100] uppercase tracking-widest mt-1 font-geist">ADMIN_10</p>
-                </div>
-                <div className="absolute bottom-24 left-8 right-8 flex gap-[2px] h-8 opacity-60">
-                  <div className="w-1 bg-[#FFAB00]" /><div className="w-2 bg-[#FFAB00]" /><div className="w-0.5 bg-[#FFAB00]" /><div className="w-3 bg-[#FFAB00]" /><div className="w-1 bg-[#FFAB00]" /><div className="w-2 bg-[#FFAB00]" /><div className="w-0.5 bg-[#FFAB00]" /><div className="w-1 bg-[#FFAB00]" /><div className="w-4 bg-[#FFAB00]" /><div className="w-1 bg-[#FFAB00]" /><div className="w-2 bg-[#FFAB00]" /><div className="w-0.5 bg-[#FFAB00]" />
-                </div>
-                <div className="absolute bottom-8 left-8 right-8 flex justify-between items-end relative z-10 mt-auto pt-32">
-                  <span className="text-[#FFAB00] font-medium text-xs font-jakarta">BlazeCrawl</span>
-                  <div className="w-4 h-4 border border-[#FFAB00] bg-[#5C3A0B]/50" />
+                <div className="flex justify-between items-end border-t border-border/60 pt-4">
+                  <span className="text-foreground font-semibold text-xs font-sans">BlazeCrawl</span>
+                  <div className="w-4 h-4 border border-border bg-muted/40 rounded-sm" />
                 </div>
               </div>
             </div>
-          </div>
+          </Card>
         </section>
 
         {/* FAQ Section */}
-        <section className="max-w-4xl mx-auto px-6 py-24">
+        <section className="max-w-4xl mx-auto px-6 py-24" id="faq">
           <div className="reveal text-center mb-16">
-            <div className="inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-sm font-medium text-[#FFAB00] mb-6 font-jakarta">FAQ</div>
-            <h2 className="text-2xl sm:text-3xl text-white font-jakarta font-medium">Service Intelligence</h2>
-            <div className="flex justify-center gap-8 mt-10 border-b border-[#FFAB00]/10">
-              <button className="pb-4 text-xs font-mono uppercase tracking-widest text-[#FFAB00] border-b-2 border-[#FFAB00] font-geist">Core</button>
-              <button className="pb-4 text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] text-orange-50 font-geist">Network</button>
-              <button className="pb-4 text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] text-orange-50 font-geist">Support</button>
-            </div>
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 font-sans">FAQ</div>
+            <h2 className="text-2xl sm:text-3xl text-foreground font-sans font-bold">Frequently Asked Questions</h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <div className="reveal flex flex-col">
-              <button className="flex items-center justify-between py-5 border-b border-[#FFAB00]/10 text-left text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">Extraction Parameters? <Icon icon="solar:alt-arrow-down-linear" className="w-4 h-4" /></button>
-              <button className="flex items-center justify-between py-5 px-4 my-2 bg-[#0F1A24] border border-[#FFAB00] shadow-[inset_0_0_10px_rgba(255,171,0,0.2)] text-left text-xs font-mono uppercase tracking-widest text-[#FFAB00] font-geist">Crawler Status? <Icon icon="solar:alt-arrow-right-linear" className="w-4 h-4" /></button>
-              <button className="flex items-center justify-between py-5 border-b border-[#FFAB00]/10 text-left text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">API Access? <Icon icon="solar:alt-arrow-down-linear" className="w-4 h-4" /></button>
-              <button className="flex items-center justify-between py-5 border-b border-[#FFAB00]/10 text-left text-xs font-mono uppercase tracking-widest hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">Data Restoration? <Icon icon="solar:alt-arrow-down-linear" className="w-4 h-4" /></button>
-            </div>
-            <div className="glow-card reveal p-8 h-full min-h-[250px]" style={{ background: "linear-gradient(135deg, rgba(15, 26, 36, 0.95) 0%, rgba(10, 16, 24, 0.98) 100%)", boxShadow: "inset 0 0 20px rgba(255, 171, 0, 0.05)", border: "1px solid rgba(255, 171, 0, 0.2)" }}>
-              <div className="relative z-10 h-full">
-                <p className="text-xs font-mono uppercase tracking-wider leading-loose text-orange-50 font-geist">
-                  &gt;&gt; Analyzing extraction vector...<br /><br />BlazeCrawl utilizes high-performance nodes to guarantee complete extraction accuracy. Fingerprinting is rotated locally. Success rate: 99.9%.
-                </p>
-              </div>
-            </div>
+          
+          <div className="reveal max-w-3xl mx-auto border border-border bg-card/40 p-8 rounded-lg">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="item-1" className="border-b border-border/40 py-2">
+                <AccordionTrigger className="text-left text-sm font-sans font-semibold hover:text-foreground transition-colors py-4">
+                  Which export formats are supported?
+                </AccordionTrigger>
+                <AccordionContent className="text-sm font-sans text-muted-foreground pt-2 pb-4 leading-relaxed">
+                  BlazeCrawl supports formatted Markdown, structured JSON structures, direct link lists, full screenshots, summary statistics, and clean raw HTML templates.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2" className="border-b border-border/40 py-2">
+                <AccordionTrigger className="text-left text-sm font-sans font-semibold hover:text-foreground transition-colors py-4">
+                  How does the system bypass scrap blocks?
+                </AccordionTrigger>
+                <AccordionContent className="text-sm font-sans text-muted-foreground pt-2 pb-4 leading-relaxed">
+                  We implement proxy rotation, dynamic fingerprint randomization, realistic navigation modeling, and custom headers to bypass modern CAPTCHA and blocker networks.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3" className="border-b-0 py-2">
+                <AccordionTrigger className="text-left text-sm font-sans font-semibold hover:text-foreground transition-colors py-4">
+                  Is there standard API access for developers?
+                </AccordionTrigger>
+                <AccordionContent className="text-sm font-sans text-muted-foreground pt-2 pb-4 leading-relaxed">
+                  Yes, developers can integrate via clean REST API interfaces. Complete keys, endpoints, and OpenAPI schemas are provided on the dashboard.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </section>
 
-        {/* Terminals Section */}
-        <section className="py-24 relative overflow-hidden border-t border-[#FFAB00]/10 bg-[#000000]">
-          <div className="absolute inset-0 pointer-events-none opacity-[0.02]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 10px, #ffffff 10px, #ffffff 11px)" }} />
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="reveal flex flex-col items-center text-center mb-20">
-              <div className="inline-flex px-3 py-1 border border-[#FFAB00]/20 bg-[#5C3A0B]/30 text-sm font-medium text-[#FFAB00] mb-6 font-jakarta shadow-[inset_0_0_8px_rgba(255,171,0,0.2)]">Global Network</div>
-              <h2 className="text-3xl md:text-5xl text-white font-jakarta font-medium mb-6">Synchronized Nodes</h2>
-              <p className="text-sm font-mono text-orange-50 max-w-2xl font-geist leading-relaxed opacity-80">Global relays maintaining high-performance scraping and real-time synchronization across the architecture.</p>
+        {/* Node Junctions Section */}
+        <section className="py-24 border-t border-border bg-muted/20">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="reveal flex flex-col items-center text-center mb-16">
+              <div className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3 font-sans">Global Grid</div>
+              <h2 className="text-3xl text-foreground font-sans font-bold mb-4">Node Network Status</h2>
+              <p className="text-sm text-muted-foreground max-w-lg leading-relaxed font-sans">
+                Active distributed routing arrays ensuring low-latency crawls and data sync operations globally.
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {[
-                { name: "Node Tokyo", desc: "Primary Asian-Pacific junction. Handling 42% of cross-grid packet routing and intercept distribution.", icon: "lucide:server", integrity: "99.9%" },
-                { name: "Node Frankfurt", desc: "Central European logic processor. Executes high-performance scraping and continuous proxy rotation.", icon: "lucide:cpu", integrity: "98.4%" },
-                { name: "Node NA East", desc: "High-bandwidth data aggregation. Maintains direct multi-channel uplink to orbital data relays.", icon: "lucide:network", integrity: "99.1%" }
+                { name: "Tokyo Terminal", desc: "Main Asian routing hub. Maintains proxy arrays and cache databases locally.", icon: "solar:server-linear", integrity: "99.9%" },
+                { name: "Frankfurt Hub", desc: "Central European data parsing. Optimizes structure mapping processes.", icon: "solar:cpu-linear", integrity: "99.4%" },
+                { name: "NA East Uplink", desc: "North American routing node. Direct synchronization channel to cloud databases.", icon: "solar:globus-linear", integrity: "99.7%" }
               ].map((terminal, i) => (
-                <div key={i} className="glow-card reveal p-8 bg-[#0F1A24]/90 backdrop-blur-md border border-[#FFAB00]/20 hover:border-[#FFAB00]/60 transition-all duration-500 group relative overflow-hidden shadow-[0_0_20px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(255,171,0,0.05)]">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF6D00]/5 blur-[40px] group-hover:bg-[#FF6D00]/20 transition-colors duration-500" />
-                  <div className="absolute top-0 left-0 w-4 h-4 border-t border-l border-[#FFAB00]/50 transition-all duration-300 group-hover:w-6 group-hover:h-6 group-hover:border-[#FFAB00]" />
-                  <div className="absolute top-0 right-0 w-4 h-4 border-t border-r border-[#FFAB00]/50 transition-all duration-300 group-hover:w-6 group-hover:h-6 group-hover:border-[#FFAB00]" />
-                  <div className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-[#FFAB00]/50 transition-all duration-300 group-hover:w-6 group-hover:h-6 group-hover:border-[#FFAB00]" />
-                  <div className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-[#FFAB00]/50 transition-all duration-300 group-hover:w-6 group-hover:h-6 group-hover:border-[#FFAB00]" />
-                  <div className="relative z-10 flex flex-col h-full">
-                    <div className="flex justify-between items-start mb-16">
-                      <div className="w-12 h-12 border border-[#FFAB00]/30 flex items-center justify-center bg-[#000000] text-[#FFAB00] group-hover:scale-110 group-hover:border-[#FFAB00] transition-all duration-300 shadow-[0_0_10px_rgba(255,171,0,0.1)]">
-                        <Icon icon={terminal.icon} className="w-6 h-6" />
-                      </div>
-                      <div className="flex items-center gap-2 bg-[#000000] border border-[#FFAB00]/20 px-2 py-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#FFAB00] animate-[pulse_2s_ease-in-out_infinite]" />
-                        <span className="text-[10px] font-medium text-[#FFAB00] font-jakarta">Active</span>
-                      </div>
+                <Card key={i} className="reveal p-8 bg-card/40 border border-border hover:border-foreground/20 hover:shadow-sm transition-all duration-300 rounded-lg flex flex-col justify-between h-[300px]">
+                  <div className="flex justify-between items-start">
+                    <div className="w-10 h-10 border border-border flex items-center justify-center bg-background text-foreground rounded-md">
+                      <Icon icon={terminal.icon} className="w-5 h-5" />
                     </div>
-                    <h3 className="text-2xl uppercase text-white font-jakarta font-medium mb-3">{terminal.name}</h3>
-                    <p className="text-sm font-mono text-orange-50 mb-10 font-geist leading-relaxed opacity-80">{terminal.desc}</p>
-                    <div className="mt-auto space-y-3 border-t border-[#FFAB00]/10 pt-6">
-                      <div className="flex justify-between items-center text-[11px] font-mono text-orange-50 font-geist">
-                        <span>Performance</span>
-                        <span className="text-[#FFAB00]">{terminal.integrity}</span>
-                      </div>
-                      <div className="w-full h-1 bg-[#000000] border border-[#FFAB00]/20 overflow-hidden relative">
-                        <div className="absolute top-0 left-0 h-full bg-[#FFAB00] shadow-[0_0_8px_#FFAB00]" style={{ width: terminal.integrity }} />
-                      </div>
+                    <div className="flex items-center gap-1.5 bg-muted px-2.5 py-1 rounded-full border border-border">
+                      <div className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" />
+                      <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-muted-foreground">Online</span>
                     </div>
                   </div>
-                </div>
+                  
+                  <div>
+                    <h3 className="text-lg font-bold text-foreground font-sans mb-2">{terminal.name}</h3>
+                    <p className="text-xs text-muted-foreground font-sans leading-relaxed">{terminal.desc}</p>
+                  </div>
+                  
+                  <div className="space-y-2 border-t border-border/40 pt-4 mt-4">
+                    <div className="flex justify-between items-center text-[10px] font-mono text-muted-foreground">
+                      <span>Sync Integrity</span>
+                      <span className="text-foreground font-semibold">{terminal.integrity}</span>
+                    </div>
+                    <div className="w-full h-1 bg-muted rounded-full overflow-hidden">
+                      <div className="h-full bg-foreground" style={{ width: terminal.integrity }} />
+                    </div>
+                  </div>
+                </Card>
               ))}
-            </div>
-            <div className="reveal mt-16 flex justify-center relative z-10">
-              <div className="inline-flex items-center gap-4 border border-[#FFAB00]/30 bg-[#0F1A24]/60 px-6 py-3 backdrop-blur-sm shadow-[inset_0_0_10px_rgba(255,171,0,0.1)]">
-                <Icon icon="lucide:shield-check" className="w-5 h-5 text-[#FFAB00]" />
-                <span className="text-sm font-mono text-white font-geist">All nodes reporting nominal performance</span>
-                <div className="flex gap-1 ml-4">
-                  <div className="w-1 h-3 bg-[#FFAB00] opacity-100" /><div className="w-1 h-3 bg-[#FFAB00] opacity-80" /><div className="w-1 h-3 bg-[#FFAB00] opacity-60" /><div className="w-1 h-3 bg-[#FFAB00] opacity-40" />
-                </div>
-              </div>
             </div>
           </div>
         </section>
 
         {/* CTA Section */}
-        <section className="py-32 relative text-center overflow-hidden border-t border-[#FFAB00]/10">
-          <div className="max-w-3xl mx-auto px-6 relative z-10">
-            <h2 className="reveal text-3xl md:text-5xl mb-16 text-white font-jakarta font-medium">Access Mainframe</h2>
-            <div className="relative w-full h-[200px] mb-12 flex justify-center items-center pointer-events-none">
-              <div className="absolute w-[80%] h-px bg-[#FFAB00]/20" />
-              <div className="absolute left-[15%] w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center">
-                <div className="w-3 h-3 bg-[#E65100]/80 rounded-sm" />
-              </div>
-              <div className="relative w-24 h-24 border-[3px] border-[#FFAB00] z-10 flex items-center justify-center bg-[#000000] shadow-[0_0_30px_rgba(255,171,0,0.3)]">
-                <div className="w-8 h-8 bg-[#FFAB00] rounded-sm rotate-45" />
-              </div>
-              <div className="absolute right-[15%] w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center">
-                <Icon icon="solar:hamburger-menu-linear" className="w-4 h-4 text-[#FFAB00]" />
-              </div>
-            </div>
-            <div className="reveal w-full max-w-md mx-auto relative mb-6">
-              <div className="flex items-center bg-[#0F1A24] border border-[#FFAB00]/40 p-1 pl-4 focus-within:border-[#FFAB00] transition-colors shadow-[inset_0_0_10px_rgba(0,0,0,0.8)]">
-                <input type="text" placeholder="Enter crawl code..." className="bg-transparent border-none outline-none flex-1 text-sm text-[#FFAB00] placeholder-[#D4A373] font-jakarta" />
-                <button className="bg-[#000000] border border-[#FFAB00] text-[#FFAB00] px-6 py-3 text-xs font-mono tracking-widest uppercase hover:bg-[#5C3A0B]/50 transition-colors font-geist">Execute</button>
+        <section className="py-24 text-center border-t border-border">
+          <div className="max-w-xl mx-auto px-6">
+            <h2 className="reveal text-3xl font-sans font-bold text-foreground mb-6">Start crawling instantly</h2>
+            <p className="reveal text-sm text-muted-foreground font-sans mb-10 leading-relaxed">
+              Enter target endpoint coordinates to test. No authentication required for baseline diagnostic operations.
+            </p>
+            <div className="reveal w-full max-w-md mx-auto">
+              <div className="flex items-center bg-card border border-border p-1.5 pl-3 focus-within:ring-1 focus-within:ring-foreground transition-all shadow-sm rounded-lg">
+                <Input 
+                  type="text" 
+                  placeholder="Enter target URL..." 
+                  className="bg-transparent border-none outline-none flex-1 text-sm text-foreground placeholder-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-none p-0 h-10 font-sans" 
+                />
+                <Button className="h-10 px-6 text-xs font-semibold rounded-md font-sans">
+                  Execute
+                </Button>
               </div>
             </div>
           </div>
         </section>
 
         {/* Footer */}
-        <footer className="relative border-t border-[#FFAB00]/10 pt-20 pb-10 overflow-hidden bg-[#000000]">
-          <div className="absolute bottom-[-5%] left-1/2 -translate-x-1/2 text-[20vw] tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-[#FFAB00]/[0.05] to-transparent pointer-events-none select-none leading-none w-full text-center uppercase font-jakarta font-medium">Blaze</div>
-          <div className="max-w-7xl mx-auto px-6 relative z-10">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
-              <div className="md:col-span-2">
-                <h3 className="text-sm font-mono font-semibold text-white mb-4 font-geist">Prime Crawler Protocol</h3>
-                <p className="text-sm font-mono max-w-sm mb-8 leading-relaxed text-orange-50 font-geist">Strategic high-performance scraping architecture.</p>
-                <div className="flex gap-4">
-                  <a href="#" className="w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center hover:border-[#FFAB00] transition-colors hover:text-[#FFAB00] text-orange-50"><Icon icon="solar:hashtag-linear" className="w-4 h-4" /></a>
-                  <a href="#" className="w-10 h-10 border border-[#FFAB00]/30 bg-[#0F1A24] flex items-center justify-center hover:border-[#FFAB00] transition-colors hover:text-[#FFAB00] text-orange-50"><Icon icon="solar:camera-linear" className="w-4 h-4" /></a>
+        <footer className="border-t border-border pt-20 pb-12 bg-background">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-12 mb-16">
+              {/* Brand Column */}
+              <div className="col-span-2 flex flex-col items-start gap-4">
+                <div className="flex items-center gap-2">
+                  <Logo className="w-6 h-6 text-foreground" />
+                  <span className="text-lg font-semibold text-foreground font-sans tracking-tight">BlazeCrawl</span>
+                </div>
+                <p className="text-sm text-muted-foreground max-w-xs font-sans leading-relaxed">
+                  High-performance web scraping and distributed data synchronization architectures built for the modern developer.
+                </p>
+                <div className="flex gap-2.5 mt-2">
+                  <a
+                    href="https://github.com/lwshakib/blazecrawl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-9 h-9 border border-border hover:bg-muted/40 hover:text-foreground flex items-center justify-center text-muted-foreground transition-colors rounded-md"
+                    title="GitHub"
+                  >
+                    <Icon icon="mdi:github" className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-9 h-9 border border-border hover:bg-muted/40 hover:text-foreground flex items-center justify-center text-muted-foreground transition-colors rounded-md"
+                    title="Twitter"
+                  >
+                    <Icon icon="mdi:twitter" className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-9 h-9 border border-border hover:bg-muted/40 hover:text-foreground flex items-center justify-center text-muted-foreground transition-colors rounded-md"
+                    title="Discord"
+                  >
+                    <Icon icon="mdi:discord" className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="#"
+                    className="w-9 h-9 border border-border hover:bg-muted/40 hover:text-foreground flex items-center justify-center text-muted-foreground transition-colors rounded-md"
+                    title="LinkedIn"
+                  >
+                    <Icon icon="mdi:linkedin" className="w-4 h-4" />
+                  </a>
                 </div>
               </div>
-              <div>
-                <ul className="space-y-4 font-mono text-sm">
-                  <li><a href="#" className="hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">Features</a></li>
-                  <li><a href="#" className="text-[#FFAB00] font-medium border-l-[3px] border-[#FFAB00] pl-2 font-geist">Dev_Core</a></li>
-                  <li><a href="#" className="hover:text-[#FFAB00] transition-colors text-orange-50 font-geist">Platform</a></li>
+
+              {/* Column 1: Product */}
+              <div className="flex flex-col gap-4">
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider font-sans">Product</h4>
+                <ul className="flex flex-col gap-2.5 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Features</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Developer Tools</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Pricing</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Documentation</a></li>
                 </ul>
               </div>
-              <div>
-                <ul className="space-y-4 font-mono text-sm">
-                  <li><a href="#" className="text-white font-medium hover:text-[#FFAB00] font-geist">Security</a></li>
-                  <li><a href="#" className="text-white font-medium hover:text-[#FFAB00] font-geist">Support</a></li>
-                  <li><a href="#" className="text-white font-medium hover:text-[#FFAB00] font-geist">Comms</a></li>
+
+              {/* Column 2: Resources */}
+              <div className="flex flex-col gap-4">
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider font-sans">Resources</h4>
+                <ul className="flex flex-col gap-2.5 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">API Status</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">System Reports</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Node Junctions</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Blog</a></li>
+                </ul>
+              </div>
+
+              {/* Column 3: Developers */}
+              <div className="flex flex-col gap-4">
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider font-sans">Developers</h4>
+                <ul className="flex flex-col gap-2.5 text-sm">
+                  <li><a href="https://github.com/lwshakib/blazecrawl" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">GitHub Repo</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">OpenAPI Schema</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">SDKs</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Support</a></li>
+                </ul>
+              </div>
+
+              {/* Column 4: Company */}
+              <div className="flex flex-col gap-4">
+                <h4 className="text-xs font-bold text-foreground uppercase tracking-wider font-sans">Company</h4>
+                <ul className="flex flex-col gap-2.5 text-sm">
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">About Us</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Privacy Policy</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Terms of Service</a></li>
+                  <li><a href="#" className="text-muted-foreground hover:text-foreground transition-colors font-sans font-medium">Comms</a></li>
                 </ul>
               </div>
             </div>
-            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-[#FFAB00]/10 text-sm text-orange-50 font-jakarta">
-              <p>System Date: 2026 // BlazeCrawl</p>
+
+            <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-border/60 text-xs text-muted-foreground font-sans">
+              <p>&copy; {new Date().getFullYear()} BlazeCrawl. All rights reserved.</p>
               <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="#" className="hover:text-[#FFAB00] transition-colors">Privacy Policy</a>
-                <a href="#" className="hover:text-[#FFAB00] transition-colors">Terms of Service</a>
+                <a href="#" className="hover:text-foreground transition-colors font-medium">Privacy Policy</a>
+                <a href="#" className="hover:text-foreground transition-colors font-medium">Terms of Service</a>
               </div>
             </div>
           </div>
