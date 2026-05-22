@@ -8,6 +8,7 @@ import { errorHandler } from "./middlewares/error.middlewares.js"
 import { ApiResponse } from "./utils/ApiResponse.js"
 import cookieParser from "cookie-parser"
 import authRoutes from "./routes/auth.routes.js"
+import scrapeRoutes from "./routes/scrape.routes.js"
 
 const app: Express = express()
 
@@ -35,6 +36,9 @@ app.get("/", (req, res) => {
 
 // Auth Routes
 app.use("/api/auth", authRoutes)
+
+// Scrape Routes
+app.use("/api/scrape", scrapeRoutes)
 
 // Error Handling Middleware (must be last)
 app.use(errorHandler)
