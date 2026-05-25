@@ -40,7 +40,8 @@ export const initDb = async () => {
     `)
     console.log("Database initialized successfully")
   } catch (err) {
-    console.error("Error initializing database:", err)
+    console.error(\"Error initializing database:\", err)
+    throw err
   } finally {
     client.release()
   }
