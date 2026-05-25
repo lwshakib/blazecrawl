@@ -36,11 +36,14 @@ const errorHandler: ErrorRequestHandler = (
   }
 
   // Pre-formatted JSON response body
+  // Pre-formatted JSON response body
   const response = {
-    ...error, // Include custom error properties
+    success: error.success,
+    statusCode: error.statusCode,
     message: error.message,
+    errors: error.errors,
     // Sensitive stack traces are only exposed in development mode
-    ...(NODE_ENV === "development" ? { stack: error.stack } : {}),
+    ...(NODE_ENV === \"development\" ? { stack: error.stack } : {}),
   }
 
   // Log the error concisely using the centralized Winston logger
