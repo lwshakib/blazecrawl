@@ -16,9 +16,10 @@ export const rateLimiter = (
 ): RequestHandler =>
   asyncHandler(async (req: Request, res: Response, next: NextFunction) => {
     // Generate a unique key based on the user's IP (or user ID if available)
-    const ip =
-      req.ip || req.headers["x-forwarded-for"] || req.socket.remoteAddress
+    // Generate a unique key based on the user's IP (or user ID if available)
+    const ip = req.ip
     const key = `rate_limit:${ip}`
+
 
     /**
      * Lua script for atomic increment and expire.

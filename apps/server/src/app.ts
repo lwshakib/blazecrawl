@@ -12,6 +12,9 @@ import scrapeRoutes from "./routes/scrape.routes.js"
 
 const app: Express = express()
 
+app.set(\"trust proxy\", 1) // Trust the first proxy
+
+
 // Global Middlewares
 app.use(helmet()) // Security headers
 app.use(
